@@ -1,0 +1,1 @@
+# slack_custome_emoji_manager
