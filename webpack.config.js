@@ -37,9 +37,13 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 const workboxPlugin = require("workbox-webpack-plugin");
 
+const CopyPlugin = require("copy-webpack-plugin");
+
 module.exports = {
   mode: "development",
-  entry: "./src/content.ts",
+  entry: {
+    content: `${__dirname}/src/content.ts`
+  },
 
   plugins: [
     new webpack.ProgressPlugin(),
@@ -48,7 +52,8 @@ module.exports = {
       swDest: "sw.js",
       clientsClaim: true,
       skipWaiting: false
-    })
+    }),
+    new CopyPlugin([{ from: "./public", to: "./" }])
   ],
 
   module: {
