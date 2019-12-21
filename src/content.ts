@@ -7,6 +7,7 @@ import {
   slackApiData
 } from './slack';
 
+import { $allDeleteDialog } from './element';
 import JSZip from 'jszip';
 import axios from 'axios';
 import elementReady from 'element-ready';
@@ -111,18 +112,27 @@ const downloadAllEmoji = async () => {
 const deleteAllEmoji = async () => {
   const [emojis, aliases] = await fetchEmojiImageAndAlias();
 
-  await Promise.all(
-    [...Object.keys(emojis), ...Object.keys(aliases)].map(async name => {
-      // パラメータを作成
-      const params = new FormData();
-      params.append('name', name);
-      params.append('token', slackApiData.apiToken);
-      // 削除
-      await axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const name of [...Object.keys(emojis), ...Object.keys(aliases)]) {
+    // パラメータを作成
+    const params = new FormData();
+    params.append('name', name);
+    params.append('token', slackApiData.apiToken);
+
+    // 削除
+    // eslint-disable-next-line no-await-in-loop
+    await axios
+      .post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
         headers: { 'content-type': 'multipart/form-data' }
+      })
+      .catch(async _ => {
+        // 失敗したら1.5秒後に再度投げ直す
+        await setTimeout(() => {}, 1500);
+        await axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
+          headers: { 'content-type': 'multipart/form-data' }
+        });
       });
-    })
-  );
+  }
 
   window.location.reload();
 };
@@ -139,4 +149,19 @@ elementReady(ELEMENT_TO_INSERT_BEFORE_SELECTOR).then(async () => {
 // 一括ダウンロード処理
 $downloadAllEmojiButton.on('click', downloadAllEmoji);
 // 一括削除処理
-$deleteAllEmojiButton.on('click', deleteAllEmoji);
+$deleteAllEmojiButton.on('click', () => {
+  const $dialog = $allDeleteDialog.clone().hide();
+  $('body').append($dialog);
+  $dialog.fadeIn('normal');
+
+  const $closeButton = $dialog.find('button.close');
+  const $cancelButton = $dialog.find('button.cancel');
+  const $confirmButton = $dialog.find('button.confirm');
+
+  $closeButton.on('click', () => $dialog.fadeOut());
+  $cancelButton.on('click', () => $dialog.fadeOut());
+  $confirmButton.on('click', async () => {
+    await deleteAllEmoji();
+    $dialog.fadeOut();
+  });
+});
