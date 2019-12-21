@@ -125,25 +125,28 @@ const deleteAllEmoji = async () => {
   const [emojis, aliases] = await fetchEmojiImageAndAlias();
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const name of [...Object.keys(emojis), ...Object.keys(aliases)]) {
+  for (const name of [...Object.keys(aliases), ...Object.keys(emojis)]) {
     // パラメータを作成
     const params = new FormData();
     params.append('name', name);
     params.append('token', slackApiData.apiToken);
 
+    const deleteEmoji = () =>
+      axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
+        headers: { 'content-type': 'multipart/form-data' }
+      });
+
     // 削除
     // eslint-disable-next-line no-await-in-loop
-    await axios
-      .post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
-        headers: { 'content-type': 'multipart/form-data' }
-      })
-      .catch(async _ => {
-        // 失敗したら1.5秒後に再度投げ直す
-        await sleep(1500);
-        await axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
-          headers: { 'content-type': 'multipart/form-data' }
-        });
+    await deleteEmoji().catch(async () => {
+      // 失敗したら3秒後に再度投げる
+      await sleep(3000);
+      await deleteEmoji().catch(async () => {
+        // 失敗したら10秒後に再度投げる
+        await sleep(10000);
+        await deleteEmoji();
       });
+    });
   }
 
   window.location.reload();
@@ -162,6 +165,7 @@ elementReady(ELEMENT_TO_INSERT_BEFORE_SELECTOR).then(async () => {
 $downloadAllEmojiButton.on('click', downloadAllEmoji);
 // 一括削除処理
 $deleteAllEmojiButton.on('click', () => {
+  // ダイアログ表示
   const $dialog = $allDeleteDialog.clone().hide();
   $('body').append($dialog);
   $dialog.fadeIn('normal');
@@ -172,16 +176,19 @@ $deleteAllEmojiButton.on('click', () => {
 
   $closeButton.on('click', () => $dialog.fadeOut());
   $cancelButton.on('click', () => $dialog.fadeOut());
+
+  // 削除ボタン押下時処理
   $confirmButton.on('click', async () => {
     $confirmButton
       .find('.c-infinite_spinner')
       .removeClass('c-button--loading_spinner--hidden');
 
     $closeButton.prop('disabled', true).addClass('c-button--disabled');
-    $cancelButton.prop('disabled', true).addClass('c-button--disabled');
+    $cancelButton.on('click', () => window.location.reload());
+
     $confirmButton.prop('disabled', true);
-    await deleteAllEmoji().finally(() => {
-      $dialog.fadeOut();
+    await deleteAllEmoji().catch(() => {
+      window.location.reload();
     });
   });
 });

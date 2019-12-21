@@ -16,6 +16,9 @@ export const $allDeleteDialog = $(`
         <div>
           この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。
         </div>
+        <div>
+          ※この処理は時間がかかる場合があります。
+        </div>
       </div>
       <div class="c-dialog__footer c-dialog__footer--has_buttons">
         <div class="c-dialog__footer_buttons">
