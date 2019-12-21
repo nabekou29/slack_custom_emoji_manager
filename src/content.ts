@@ -27,6 +27,18 @@ const $deleteAllEmojiButton = $('<button></button>')
   .text('絵文字を一括で削除');
 
 /**
+ * 処理を指定時間中断します
+ * @param ms 止める時間
+ */
+const sleep = (ms: number) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+};
+
+/**
  * 絵文字とエイリアスの一覧を取得
  * @return [絵文字, エイリアス]
  */
@@ -127,7 +139,7 @@ const deleteAllEmoji = async () => {
       })
       .catch(async _ => {
         // 失敗したら1.5秒後に再度投げ直す
-        await setTimeout(() => {}, 1500);
+        await sleep(1500);
         await axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, params, {
           headers: { 'content-type': 'multipart/form-data' }
         });
@@ -161,7 +173,15 @@ $deleteAllEmojiButton.on('click', () => {
   $closeButton.on('click', () => $dialog.fadeOut());
   $cancelButton.on('click', () => $dialog.fadeOut());
   $confirmButton.on('click', async () => {
-    await deleteAllEmoji();
-    $dialog.fadeOut();
+    $confirmButton
+      .find('.c-infinite_spinner')
+      .removeClass('c-button--loading_spinner--hidden');
+
+    $closeButton.prop('disabled', true).addClass('c-button--disabled');
+    $cancelButton.prop('disabled', true).addClass('c-button--disabled');
+    $confirmButton.prop('disabled', true);
+    await deleteAllEmoji().finally(() => {
+      $dialog.fadeOut();
+    });
   });
 });

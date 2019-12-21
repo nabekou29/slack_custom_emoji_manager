@@ -7,7 +7,7 @@ export const $allDeleteDialog = $(`
   <div class="ReactModal__Overlay ReactModal__Overlay--after-open c-dialog p-customize_emoji__dialog_overlay">
     <div class="ReactModal__Content ReactModal__Content--after-open c-dialog__content p-customize_emoji_list__single_delete" tabindex="-1" role="dialog" aria-label="すべての絵文字を削除しますか？">
       <div class="c-dialog__header">
-        <h1 class="c-dialog__title">この絵文字を削除しますか？</h1>
+        <h1 class="c-dialog__title">すべての絵文字を削除しますか？</h1>
         <button class="c-button-unstyled c-icon_button c-icon_button--light c-icon_button--size_medium c-dialog__close close" type="button" aria-label="閉じる">
           <i class="c-icon c-icon--times" type="times" aria-hidden="true"></i>
         </button>
@@ -22,7 +22,7 @@ export const $allDeleteDialog = $(`
           <button class="c-button c-button--outline c-button--medium c-dialog__cancel null--outline null--medium cancel" type="button">キャンセル</button>
             <button class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium confirm" type="button">
             削除する
-            <div class="c-infinite_spinner c-button-loading__spinner c-button--loading_spinner--hidden c-infinite_spinner--medium c-infinite_spinner--blue">
+            <div class="c-infinite_spinner c-button-loading__spinner c-button--loading_spinner--hidden c-infinite_spinner--medium c-infinite_spinner--white">
               <svg class="c-infinite_spinner__spinner" viewBox="0 0 78 78">
                 <circle class="c-infinite_spinner__bg" cx="50%" cy="50%" r="35" ></circle>
                 <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle>
