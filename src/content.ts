@@ -97,6 +97,12 @@ const downloadAllEmoji = async () => {
 
   // エイリアスをJSONファイルとしてzip化
   zip.file('_alias.json', JSON.stringify(aliases));
+
+  const c = new Date();
+  saveZipFile(
+    zip,
+    `emoji_${c.getFullYear()}_${c.getMonth() + 1}_${c.getDate()}.zip`
+  );
 };
 
 /**
