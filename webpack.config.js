@@ -1,5 +1,5 @@
-const path = require("path");
-const webpack = require("webpack");
+const path = require('path');
+const webpack = require('webpack');
 
 /*
  * SplitChunksPlugin is enabled by default and replaced
@@ -23,7 +23,7 @@ const webpack = require("webpack");
  *
  */
 
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 /*
  * We've enabled TerserPlugin for you! This minifies your app
@@ -33,35 +33,36 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
  *
  */
 
-const TerserPlugin = require("terser-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
-const workboxPlugin = require("workbox-webpack-plugin");
+const workboxPlugin = require('workbox-webpack-plugin');
 
-const CopyPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: "development",
+  mode: 'development',
   entry: {
-    content: `${__dirname}/src/content.ts`
+    content: path.resolve(__dirname, './src/content.ts'),
+    background: path.resolve(__dirname, './src/background.ts')
   },
 
   plugins: [
     new webpack.ProgressPlugin(),
-    new MiniCssExtractPlugin({ filename: "main.[chunkhash].css" }),
+    new MiniCssExtractPlugin({ filename: 'main.[chunkhash].css' }),
     new workboxPlugin.GenerateSW({
-      swDest: "sw.js",
+      swDest: 'sw.js',
       clientsClaim: true,
       skipWaiting: false
     }),
-    new CopyPlugin([{ from: "./public", to: "./" }])
+    new CopyPlugin([{ from: './public', to: './' }])
   ],
 
   module: {
     rules: [
       {
         test: /.(ts|tsx)?$/,
-        loader: "ts-loader",
-        include: [path.resolve(__dirname, "./src")],
+        loader: 'ts-loader',
+        include: [path.resolve(__dirname, './src')],
         exclude: [/node_modules/]
       },
       {
@@ -72,10 +73,10 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader
           },
           {
-            loader: "style-loader"
+            loader: 'style-loader'
           },
           {
-            loader: "css-loader",
+            loader: 'css-loader',
 
             options: {
               sourceMap: true
@@ -87,7 +88,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: ['.tsx', '.ts', '.js']
   },
 
   optimization: {
@@ -101,7 +102,7 @@ module.exports = {
         }
       },
 
-      chunks: "async",
+      chunks: 'async',
       minChunks: 1,
       minSize: 30000,
       name: true
