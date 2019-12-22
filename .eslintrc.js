@@ -22,6 +22,7 @@ module.exports = {
     'import/extensions': 'off',
     'import/no-extraneous-dependencies': 'off',
     'no-unused-vars': 'off',
+    'no-unused-expressions': 'off',
     quotes: ['warn', 'single']
   }
 };

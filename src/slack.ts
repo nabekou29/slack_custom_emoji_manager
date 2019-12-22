@@ -27,9 +27,7 @@ export const slackApiData = (() => {
 
   // scriptをリストにする
   const scriptList: HTMLElement[] = [];
-  document
-    .querySelectorAll<HTMLElement>('script[type="text/javascript"]')
-    .forEach(script => scriptList.push(script));
+  document.querySelectorAll<HTMLElement>('script[type="text/javascript"]').forEach(script => scriptList.push(script));
 
   // 埋め込まれているscriptからTokenなどを取得
   scriptList.some(script => {
@@ -40,9 +38,7 @@ export const slackApiData = (() => {
     }
 
     const apiTokenResult = /"?api_token"?:\s*"(.+?)"/g.exec(script.innerText);
-    const versionUidResult = /"?version_uid"?:\s*"(.+?)"/g.exec(
-      script.innerText
-    );
+    const versionUidResult = /"?version_uid"?:\s*"(.+?)"/g.exec(script.innerText);
 
     apiToken = apiTokenResult?.[1] ?? '';
     versionUid = versionUidResult?.[1] ?? '';

@@ -1,37 +1,18 @@
-import * as $ from 'jquery';
+import { BASE_URL, EmojiListResult, WebAPICallResult, slackApiData } from './slack';
+import { allDeleteDialog, deleteAllEmojiButton, downloadAllEmojiButton } from './element';
 
-import {
-  BASE_URL,
-  EmojiListResult,
-  WebAPICallResult,
-  slackApiData
-} from './slack';
-
-import { $allDeleteDialog } from './element';
 import JSZip from 'jszip';
 import axios from 'axios';
 import elementReady from 'element-ready';
 
 const ELEMENT_TO_INSERT_BEFORE_SELECTOR = '.p-customize_emoji_wrapper';
 
-/** 一括ダウンロードボタン */
-const $downloadAllEmojiButton = $('<button></button>')
-  .addClass(['c-button', 'c-button--primary', 'c-button--medium'])
-  .css('margin-left', 12)
-  .text('絵文字を一括でダウンロード');
-
-/** 一括削除ボタン */
-const $deleteAllEmojiButton = $('<button></button>')
-  .addClass(['c-button', 'c-button--danger', 'c-button--medium'])
-  .css('margin-left', 12)
-  .text('絵文字を一括で削除');
-
 /**
  * 処理を指定時間中断します
  * @param ms 止める時間
  */
 const sleep = (ms: number) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve();
     }, ms);
@@ -42,10 +23,7 @@ const sleep = (ms: number) => {
  * 絵文字とエイリアスの一覧を取得
  * @return [絵文字, エイリアス]
  */
-const fetchEmojiImageAndAlias = async (): Promise<[
-  { [k: string]: string },
-  { [k: string]: string }
-]> => {
+const fetchEmojiImageAndAlias = async (): Promise<[{ [k: string]: string }, { [k: string]: string }]> => {
   const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
     params: { token: slackApiData.apiToken }
   });
@@ -53,10 +31,7 @@ const fetchEmojiImageAndAlias = async (): Promise<[
   // 絵文字
   const emojiMap = Object.entries(res.data.emoji)
     .filter(([_, url]: [string, string]) => !url.match(/alias:.*/))
-    .reduce(
-      (emojis, [name, url]) => ({ [name]: url, ...emojis }),
-      {} as { [k: string]: string }
-    );
+    .reduce((emojis, [name, url]) => ({ [name]: url, ...emojis }), {} as { [k: string]: string });
   // エイリアス
   const aliasMap = Object.entries(res.data.emoji)
     .filter(([_, url]: [string, string]) => url.match(/alias:.*/))
@@ -82,11 +57,7 @@ const saveZipFile = async (zip: JSZip, fileName: string) => {
   const downLoadLink = document.createElement('a');
   downLoadLink.download = fileName;
   downLoadLink.href = URL.createObjectURL(content);
-  downLoadLink.dataset.downloadurl = [
-    'blob',
-    downLoadLink.download,
-    downLoadLink.href
-  ].join(':');
+  downLoadLink.dataset.downloadurl = ['blob', downLoadLink.download, downLoadLink.href].join(':');
   downLoadLink.click();
 };
 
@@ -112,10 +83,7 @@ const downloadAllEmoji = async () => {
   zip.file('_alias.json', JSON.stringify(aliases));
 
   const c = new Date();
-  saveZipFile(
-    zip,
-    `emoji_${c.getFullYear()}_${c.getMonth() + 1}_${c.getDate()}.zip`
-  );
+  saveZipFile(zip, `emoji_${c.getFullYear()}_${c.getMonth() + 1}_${c.getDate()}.zip`);
 };
 
 /**
@@ -154,39 +122,55 @@ const deleteAllEmoji = async () => {
 
 // ボタンの追加
 elementReady(ELEMENT_TO_INSERT_BEFORE_SELECTOR).then(async () => {
-  const $addAliasButton = $('button[data-qa=customize_emoji_add_alias]');
-  const $buttonsWrapper = $addAliasButton.parent('div');
+  // エイリアス追加ボタン
+  const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]');
+  const buttonsWrapper = addAliasButton?.parentElement;
 
-  $buttonsWrapper.removeAttr('class').css({ 'margin-bottom': 12 });
-  $buttonsWrapper.append($downloadAllEmojiButton).append($deleteAllEmojiButton);
+  if (!addAliasButton || !buttonsWrapper) return;
+
+  // ボタンのラッパー要素の配置を修正
+  buttonsWrapper.removeAttribute('class');
+  buttonsWrapper.style.marginBottom = '12px';
+
+  // ボタンの追加
+  buttonsWrapper.appendChild(downloadAllEmojiButton);
+  buttonsWrapper.appendChild(deleteAllEmojiButton);
 });
 
 // 一括ダウンロード処理
-$downloadAllEmojiButton.on('click', downloadAllEmoji);
+downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
 // 一括削除処理
-$deleteAllEmojiButton.on('click', () => {
+deleteAllEmojiButton.addEventListener('click', () => {
   // ダイアログ表示
-  const $dialog = $allDeleteDialog.clone().hide();
-  $('body').append($dialog);
-  $dialog.fadeIn('normal');
+  const dialog = allDeleteDialog.cloneNode(true) as HTMLDivElement;
 
-  const $closeButton = $dialog.find('button.close');
-  const $cancelButton = $dialog.find('button.cancel');
-  const $confirmButton = $dialog.find('button.confirm');
+  document.body.appendChild(dialog);
+  dialog.style.display = 'unset';
 
-  $closeButton.on('click', () => $dialog.fadeOut());
-  $cancelButton.on('click', () => $dialog.fadeOut());
+  const closeButton = dialog.querySelector('button.close');
+  const cancelButton = dialog.querySelector('button.cancel');
+  const confirmButton = dialog.querySelector('button.confirm');
+
+  if (!closeButton || !cancelButton || !confirmButton) return;
+
+  closeButton.addEventListener('click', () => {
+    dialog.remove();
+  });
+  cancelButton.addEventListener('click', () => {
+    dialog.remove();
+  });
 
   // 削除ボタン押下時処理
-  $confirmButton.on('click', async () => {
-    $confirmButton
-      .find('.c-infinite_spinner')
-      .removeClass('c-button--loading_spinner--hidden');
+  confirmButton.addEventListener('click', async () => {
+    closeButton.setAttribute('disabled', 'disabled');
+    closeButton.classList.add('c-button--disabled');
 
-    $closeButton.prop('disabled', true).addClass('c-button--disabled');
-    $cancelButton.on('click', () => window.location.reload());
+    cancelButton.addEventListener('click', () => window.location.reload());
 
-    $confirmButton.prop('disabled', true);
+    confirmButton.setAttribute('disabled', 'disabled');
+    confirmButton.classList.add('c-button--disabled');
+    // スピナーを表示
+    confirmButton.querySelector('.c-infinite_spinner')?.classList.remove('c-button--loading_spinner--hidden');
     await deleteAllEmoji().catch(() => {
       window.location.reload();
     });
