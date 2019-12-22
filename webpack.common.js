@@ -40,7 +40,6 @@ const workboxPlugin = require('workbox-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
   entry: {
     content: path.resolve(__dirname, './src/content.ts'),
     background: path.resolve(__dirname, './src/background.ts')

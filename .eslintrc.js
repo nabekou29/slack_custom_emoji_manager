@@ -20,6 +20,7 @@ module.exports = {
     'import/order': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
+    'import/no-extraneous-dependencies': 'off',
     'no-unused-vars': 'off',
     quotes: ['warn', 'single']
   }
