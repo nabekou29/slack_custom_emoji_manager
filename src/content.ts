@@ -1,8 +1,8 @@
 import { allDeleteDialog, deleteAllEmojiButton, downloadAllEmojiButton } from './element';
+import axios, { AxiosError } from 'axios';
 import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
 
 import JSZip from 'jszip';
-import axios from 'axios';
 import elementReady from 'element-ready';
 
 /**
@@ -70,19 +70,26 @@ const downloadAllEmoji = async () => {
  */
 const deleteAllEmoji = async () => {
   const [emojis, aliases] = await fetchEmojiImageAndAlias();
-
+  // 失敗時にリクエストを投げ直す回数
+  const RE_POST_NUM = 3;
   for (const name of [...Object.keys(aliases), ...Object.keys(emojis)]) {
-    // 削除
-    await deleteEmoji(name).catch(async () => {
-      // 失敗したら3秒後に再度投げる
-      await sleep(3000);
-      await deleteEmoji(name).catch(async () => {
-        // 失敗したら10秒後に再度投げる
-        await sleep(10000);
+    [...Array(RE_POST_NUM + 1).keys()].some(async i => {
+      try {
+        // 削除
         await deleteEmoji(name);
-      });
+        return true;
+      } catch (e) {
+        const err = e as AxiosError;
+        // リクエスト過多で失敗した場合3秒後に再度投げる
+        if (i !== RE_POST_NUM && err.response?.status === 429) {
+          await sleep(3000);
+          return false;
+        }
+        throw e;
+      }
     });
-    await sleep(200);
+    // 負荷軽減
+    await sleep(100);
   }
 };
 
