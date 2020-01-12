@@ -2,6 +2,26 @@
 
 export const BASE_URL = 'https://slack.com/api';
 
+/** emoji.listのレスポンスに標準で含まれる絵文字 */
+export const defaultEmojis = [
+  'bowtie',
+  'cubimal_chick',
+  'dusty_stick',
+  'glitch_crab',
+  'piggy',
+  'pride',
+  'simple_smile',
+  'slack_call',
+  'slack',
+  'squirrel',
+  'thumbsup_all'
+];
+/** emoji.listのレスポンスに標準で含まれるエイリアス */
+export const defaultAliases = ['black_square', 'white_square', 'shipit'];
+
+/** ワークスペース名 */
+export const workSpaceName = window.location.href.match(/.*:\/\/(.*).slack.com\/.*/)?.[1];
+
 export interface EmojiListResult extends WebAPICallResult {
   emoji: { [key: string]: string };
 }

@@ -1,4 +1,12 @@
-import { BASE_URL, EmojiListResult, WebAPICallResult, slackApiData } from './slack';
+import {
+  BASE_URL,
+  EmojiListResult,
+  WebAPICallResult,
+  defaultAliases,
+  defaultEmojis,
+  slackApiData,
+  workSpaceName
+} from './slack';
 import { allDeleteDialog, deleteAllEmojiButton, downloadAllEmojiButton } from './element';
 
 import JSZip from 'jszip';
@@ -30,11 +38,11 @@ const fetchEmojiImageAndAlias = async (): Promise<[{ [k: string]: string }, { [k
 
   // 絵文字
   const emojiMap = Object.entries(res.data.emoji)
-    .filter(([_, url]: [string, string]) => !url.match(/alias:.*/))
+    .filter(([name, url]: [string, string]) => !url.match(/alias:.*/) && !defaultEmojis.includes(name))
     .reduce((emojis, [name, url]) => ({ [name]: url, ...emojis }), {} as { [k: string]: string });
   // エイリアス
   const aliasMap = Object.entries(res.data.emoji)
-    .filter(([_, url]: [string, string]) => url.match(/alias:.*/))
+    .filter(([name, url]: [string, string]) => url.match(/alias:.*/) && !defaultAliases.includes(name))
     .reduce(
       (aliases, [name, alias]) => ({
         [name]: alias.match(/alias:(.*)/)?.[1] ?? '',
@@ -80,10 +88,13 @@ const downloadAllEmoji = async () => {
   );
 
   // エイリアスをJSONファイルとしてzip化
-  zip.file('_alias.json', JSON.stringify(aliases));
+  if (Object.keys(aliases).length) {
+    zip.file('_alias.json', JSON.stringify(aliases, null, 2));
+  }
 
-  const c = new Date();
-  saveZipFile(zip, `emoji_${c.getFullYear()}_${c.getMonth() + 1}_${c.getDate()}.zip`);
+  const current = new Date();
+  const formatedCurrentDate = `${current.getFullYear()}_${current.getMonth() + 1}_${current.getDate()}`;
+  saveZipFile(zip, `emoji_${workSpaceName}_${formatedCurrentDate}.zip`);
 };
 
 /**
@@ -147,30 +158,30 @@ deleteAllEmojiButton.addEventListener('click', () => {
   document.body.appendChild(dialog);
   dialog.style.display = 'unset';
 
+  // 各ボタンを取得
   const closeButton = dialog.querySelector('button.close');
   const cancelButton = dialog.querySelector('button.cancel');
   const confirmButton = dialog.querySelector('button.confirm');
-
   if (!closeButton || !cancelButton || !confirmButton) return;
 
-  closeButton.addEventListener('click', () => {
-    dialog.remove();
-  });
-  cancelButton.addEventListener('click', () => {
-    dialog.remove();
-  });
+  // ×ボタン押下時
+  closeButton.addEventListener('click', () => dialog.remove());
+  // キャンセルボタン押下時
+  cancelButton.addEventListener('click', () => dialog.remove());
 
   // 削除ボタン押下時処理
   confirmButton.addEventListener('click', async () => {
+    cancelButton.addEventListener('click', () => window.location.reload());
+
     closeButton.setAttribute('disabled', 'disabled');
     closeButton.classList.add('c-button--disabled');
-
-    cancelButton.addEventListener('click', () => window.location.reload());
 
     confirmButton.setAttribute('disabled', 'disabled');
     confirmButton.classList.add('c-button--disabled');
     // スピナーを表示
     confirmButton.querySelector('.c-infinite_spinner')?.classList.remove('c-button--loading_spinner--hidden');
+
+    // 削除処理
     await deleteAllEmoji().catch(() => {
       window.location.reload();
     });
