@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import axios from 'axios';
 
 export const BASE_URL = 'https://slack.com/api';
 
@@ -70,3 +71,48 @@ export const slackApiData = (() => {
     versionUid
   };
 })();
+
+/**
+ * 絵文字とエイリアスの一覧を取得
+ * @return [絵文字, エイリアス]
+ */
+export const fetchEmojiImageAndAlias = async (): Promise<[{ [k: string]: string }, { [k: string]: string }]> => {
+  const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
+    params: { token: slackApiData.apiToken }
+  });
+
+  // エイリアスかのチェック
+  const isAlias = (url: string) => url.match(/alias:.*/);
+
+  // 絵文字
+  const emojiMap = Object.entries(res.data.emoji)
+    .filter(([name, url]: [string, string]) => !isAlias(url) && !defaultEmojis.includes(name))
+    .reduce<{ [k: string]: string }>((emojis, [name, url]) => ({ [name]: url, ...emojis }), {});
+  // エイリアス
+  const aliasMap = Object.entries(res.data.emoji)
+    .filter(([name, url]: [string, string]) => isAlias(url) && !defaultAliases.includes(name))
+    .reduce<{ [k: string]: string }>(
+      (aliases, [name, alias]) => ({
+        [name]: alias.match(/alias:(.*)/)?.[1] ?? '',
+        ...aliases
+      }),
+      {}
+    );
+
+  return [emojiMap, aliasMap];
+};
+
+/**
+ * 絵文字/エイリアスを削除します
+ * @param name 絵文字名/エイリアス名
+ * @returnレスポンス
+ */
+export const deleteEmoji = (name: string) => {
+  const data = new FormData();
+  data.append('name', name);
+  data.append('token', slackApiData.apiToken);
+
+  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, data, {
+    headers: { 'content-type': 'multipart/form-data' }
+  });
+};

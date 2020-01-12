@@ -23,6 +23,8 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'no-unused-vars': 'off',
     'no-unused-expressions': 'off',
+    'no-await-in-loop': 'off',
+    'no-restricted-syntax': 'off',
     quotes: ['warn', 'single']
   }
 };
