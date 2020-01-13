@@ -5,6 +5,7 @@
       "axios": ["node_modules/axios/index.d.ts"],
       "element-ready": ["node_modules/element-ready/index.d.ts"]
     },
+    "typeRoots": ["src/types", "node_modules/@types/"],
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "module": "es6",

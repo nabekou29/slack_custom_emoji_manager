@@ -38,16 +38,19 @@ const TerserPlugin = require('terser-webpack-plugin');
 const workboxPlugin = require('workbox-webpack-plugin');
 
 const CopyPlugin = require('copy-webpack-plugin');
+const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
   entry: {
-    content: path.resolve(__dirname, './src/content.ts'),
-    background: path.resolve(__dirname, './src/background.ts')
+    content: path.resolve(__dirname, 'src', 'content.ts'),
+    background: path.resolve(__dirname, 'src', 'background.ts'),
+    main: path.resolve(__dirname, 'src', 'main.css')
   },
-
   plugins: [
     new webpack.ProgressPlugin(),
-    new MiniCssExtractPlugin({ filename: 'main.[chunkhash].css' }),
+    new MiniCssExtractPlugin(),
+    new FixStyleOnlyEntriesPlugin(),
     new workboxPlugin.GenerateSW({
       swDest: 'sw.js',
       clientsClaim: true,
@@ -66,32 +69,18 @@ module.exports = {
       },
       {
         test: /.css$/,
-
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader
-          },
-          {
-            loader: 'style-loader'
-          },
-          {
-            loader: 'css-loader',
-
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        include: [path.resolve(__dirname, './src')]
       }
     ]
   },
 
   resolve: {
-    extensions: ['.tsx', '.ts', '.js']
+    extensions: ['.ts', '.js', '.css']
   },
 
   optimization: {
-    minimizer: [new TerserPlugin()],
+    minimizer: [new TerserPlugin(), new OptimizeCSSAssetsPlugin()],
 
     splitChunks: {
       cacheGroups: {

@@ -67,12 +67,13 @@ const downloadAllEmoji = async () => {
 
 /**
  * 全ての絵文字を削除
+ * @prams names 名前の一覧
+ * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
-const deleteAllEmoji = async () => {
-  const [emojis, aliases] = await fetchEmojiImageAndAlias();
+const deleteAllEmoji = async (names: string[], callback: () => void) => {
   // 失敗時にリクエストを投げ直す回数
   const RE_POST_NUM = 3;
-  for (const name of [...Object.keys(aliases), ...Object.keys(emojis)]) {
+  for (const name of names) {
     [...Array(RE_POST_NUM + 1).keys()].some(async i => {
       try {
         // 削除
@@ -88,6 +89,7 @@ const deleteAllEmoji = async () => {
         throw e;
       }
     });
+    callback();
     // 負荷軽減
     await sleep(100);
   }
@@ -122,24 +124,35 @@ deleteAllEmojiButton.addEventListener('click', () => {
   const [closeButton, cancelButton, confirmButton] = ['button.close', 'button.cancel', 'button.confirm'].map(selector =>
     dialog.querySelector<HTMLButtonElement>(selector)
   );
-  if (!closeButton || !cancelButton || !confirmButton) return;
+  // プログレスバーを取得
+  const progress = dialog.querySelector<HTMLProgressElement>('.progress');
+  if (!closeButton || !cancelButton || !confirmButton || !progress) return;
 
-  // ×ボタン/キャンセルボタン押下時
-  [closeButton, cancelButton].forEach(b => b.addEventListener('click', dialog.remove));
+  // ×ボタン/キャンセルボタン押下時にダイアログを閉じる
+  [closeButton, cancelButton].forEach(b => b.addEventListener('click', () => dialog.remove()));
 
   // 削除ボタン押下時処理
   confirmButton.addEventListener('click', async () => {
-    cancelButton.addEventListener('click', () => window.location.reload());
-    // ×ボタン/キャンセルボタンを押下不可にする
-    [closeButton, cancelButton].forEach(b => {
-      b.setAttribute('disabled', 'disabled');
-      b.classList.add('c-button--disabled');
-    });
+    // ×ボタン/キャンセルボタン押下に画面を更新
+    [closeButton, cancelButton].forEach(b => b.addEventListener('click', () => window.location.reload()));
     // スピナーを表示
     confirmButton.querySelector('.c-infinite_spinner')?.classList.remove('c-button--loading_spinner--hidden');
+    // プログレスバーを表示
+    progress.style.display = 'unset';
+
+    const [emojis, aliases] = await fetchEmojiImageAndAlias();
+    const names = [...Object.keys(emojis), ...Object.keys(aliases)];
+    progress.max = names.length;
+    const callback = (() => {
+      let cnt = 0;
+      return () => {
+        cnt += 1;
+        progress.value = cnt;
+      };
+    })();
 
     // 削除処理
-    await deleteAllEmoji().catch(window.location.reload);
+    await deleteAllEmoji(names, callback).catch(() => window.location.reload());
     window.location.reload();
   });
 });

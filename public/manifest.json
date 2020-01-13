@@ -17,17 +17,13 @@
   "content_scripts": [
     {
       "js": ["content.js"],
+      "css": ["main.css"],
       "matches": ["*://*.slack.com/*/emoji*"]
     }
   ],
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": [
-    "webRequest",
-    "webRequestBlocking",
-    "*://emoji.slack-edge.com/",
-    "*://slack.com/api/"
-  ],
+  "permissions": ["webRequest", "webRequestBlocking", "*://emoji.slack-edge.com/", "*://slack.com/api/"],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
