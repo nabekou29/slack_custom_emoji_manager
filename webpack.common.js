@@ -40,12 +40,13 @@ const workboxPlugin = require('workbox-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    content: path.resolve(__dirname, 'src', 'content.ts'),
-    background: path.resolve(__dirname, 'src', 'background.ts'),
-    main: path.resolve(__dirname, 'src', 'main.css')
+    content: path.resolve(__dirname, 'src', 'js', 'content.ts'),
+    background: path.resolve(__dirname, 'src', 'js', 'background.ts'),
+    main: path.resolve(__dirname, 'src', 'css', 'main.css')
   },
   plugins: [
     new webpack.ProgressPlugin(),
@@ -56,13 +57,18 @@ module.exports = {
       clientsClaim: true,
       skipWaiting: false
     }),
-    new CopyPlugin([{ from: './public', to: './' }])
+    new CopyPlugin([{ from: './public', to: './' }]),
+    new HtmlWebpackPlugin({
+      inject: false,
+      filename: 'all_delete_dialog.html',
+      template: path.resolve(__dirname, 'src', 'html', 'all_delete_dialog.html')
+    })
   ],
 
   module: {
     rules: [
       {
-        test: /.(ts|tsx)?$/,
+        test: /.(ts|tsx)$/,
         loader: 'ts-loader',
         include: [path.resolve(__dirname, './src')],
         exclude: [/node_modules/]
@@ -71,12 +77,16 @@ module.exports = {
         test: /.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
         include: [path.resolve(__dirname, './src')]
+      },
+      {
+        test: /.html$/,
+        loader: 'html-loader'
       }
     ]
   },
 
   resolve: {
-    extensions: ['.ts', '.js', '.css']
+    extensions: ['.ts', '.js']
   },
 
   optimization: {
