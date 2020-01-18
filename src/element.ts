@@ -32,8 +32,9 @@ export const allDeleteDialog = (() => {
     <div class="c-dialog__body c-dialog__body--slack_scrollbar">
       <div> この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。</div>
       <div> ※この処理は時間がかかる場合があります。 </div>
-      <div class="progress">
-        <div class="progress-bar" role="progressbar"></div>
+      <div class="progress" style="display: none;">
+        <span class="progress-contents"></span>
+        <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
       </div>
       <div class="c-dialog__footer c-dialog__footer--has_buttons">
         <div class="c-dialog__footer_buttons"> <button class="c-button c-button--outline c-button--medium c-dialog__cancel null--outline null--medium cancel" type="button">キャンセル</button> <button class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium confirm" type="button"> 削除する <div class="c-infinite_spinner c-button-loading__spinner c-button--loading_spinner--hidden c-infinite_spinner--medium c-infinite_spinner--blue"> <svg class="c-infinite_spinner__spinner" viewBox="0 0 78 78"> <circle class="c-infinite_spinner__bg" cx="50%" cy="50%" r="35" ></circle> <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle> </svg> <svg class="c-infinite_spinner__spinner c-infinite_spinner__tail" viewBox="0 0 78 78"> <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35" ></circle> </svg> <span aria-live="polite" class="offscreen"></span> </div></button> </div>

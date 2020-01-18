@@ -70,9 +70,11 @@ const downloadAllEmoji = async () => {
  * @prams names 名前の一覧
  * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
-const deleteAllEmoji = async (names: string[], callback: () => void) => {
+const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) => {
   // 失敗時にリクエストを投げ直す回数
   const RE_POST_NUM = 3;
+
+  let cnt = 0;
   for (const name of names) {
     [...Array(RE_POST_NUM + 1).keys()].some(async i => {
       try {
@@ -89,7 +91,8 @@ const deleteAllEmoji = async (names: string[], callback: () => void) => {
         throw e;
       }
     });
-    callback();
+    cnt += 1;
+    callback(cnt);
     // 負荷軽減
     await sleep(100);
   }
@@ -125,8 +128,8 @@ deleteAllEmojiButton.addEventListener('click', () => {
     dialog.querySelector<HTMLButtonElement>(selector)
   );
   // プログレスバーを取得
-  const progress = dialog.querySelector<HTMLProgressElement>('.progress');
-  if (!closeButton || !cancelButton || !confirmButton || !progress) return;
+  const progressWrapper = dialog.querySelector<HTMLDivElement>('.progress');
+  if (!closeButton || !cancelButton || !confirmButton || !progressWrapper) return;
 
   // ×ボタン/キャンセルボタン押下時にダイアログを閉じる
   [closeButton, cancelButton].forEach(b => b.addEventListener('click', () => dialog.remove()));
@@ -138,21 +141,21 @@ deleteAllEmojiButton.addEventListener('click', () => {
     // スピナーを表示
     confirmButton.querySelector('.c-infinite_spinner')?.classList.remove('c-button--loading_spinner--hidden');
     // プログレスバーを表示
-    progress.style.display = 'unset';
+    progressWrapper.style.display = 'block';
+    const progressBar = progressWrapper.querySelector<HTMLDivElement>('.progress-bar');
+    const progressContent = progressWrapper.querySelector<HTMLDivElement>('.progress-contents');
+    if (!progressBar || !progressContent) return;
 
     const [emojis, aliases] = await fetchEmojiImageAndAlias();
     const names = [...Object.keys(emojis), ...Object.keys(aliases)];
-    progress.max = names.length;
-    const callback = (() => {
-      let cnt = 0;
-      return () => {
-        cnt += 1;
-        progress.value = cnt;
-      };
-    })();
+    const updateProgress = (cnt: number) => {
+      progressBar.style.width = `${(cnt / names.length) * 100}%`;
+      progressContent.innerText = `${cnt} / ${names.length}`;
+    };
+    updateProgress(0);
 
     // 削除処理
-    await deleteAllEmoji(names, callback).catch(() => window.location.reload());
+    await deleteAllEmoji(names, updateProgress).catch(() => window.location.reload());
     window.location.reload();
   });
 });
