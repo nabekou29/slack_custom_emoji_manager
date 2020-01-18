@@ -1,3 +1,8 @@
+button.delete-all,
+button.download-all {
+  margin-left: 12px;
+}
+
 .progress-contents {
   position: absolute;
   top: 50%;

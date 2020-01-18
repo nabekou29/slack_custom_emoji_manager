@@ -1,5 +1,5 @@
-import { allDeleteDialog, deleteAllEmojiButton, downloadAllEmojiButton } from './element';
 import axios, { AxiosError } from 'axios';
+import { createAllDeleteDialog, createDeleteAllEmojiButton, createDownloadAllEmojiButton } from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
 
 import JSZip from 'jszip';
@@ -76,21 +76,22 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
 
   let cnt = 0;
   for (const name of names) {
-    [...Array(RE_POST_NUM + 1).keys()].some(async i => {
+    for (const i of [...Array(RE_POST_NUM + 1).keys()]) {
       try {
         // 削除
         await deleteEmoji(name);
-        return true;
+        break;
       } catch (e) {
         const err = e as AxiosError;
         // リクエスト過多で失敗した場合3秒後に再度投げる
         if (i !== RE_POST_NUM && err.response?.status === 429) {
           await sleep(3000);
-          return false;
+          // eslint-disable-next-line no-continue
+          continue;
         }
         throw e;
       }
-    });
+    }
     cnt += 1;
     callback(cnt);
     // 負荷軽減
@@ -98,28 +99,12 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
   }
 };
 
-// ボタンの追加
-elementReady('.p-customize_emoji_wrapper').then(async () => {
-  // エイリアス追加ボタン
-  const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]');
-  const buttonsWrapper = addAliasButton?.parentElement;
-  if (!addAliasButton || !buttonsWrapper) return;
-
-  // ボタンのラッパー要素の配置を修正
-  buttonsWrapper.removeAttribute('class');
-  buttonsWrapper.style.marginBottom = '12px';
-
-  // ボタンの追加
-  buttonsWrapper.appendChild(downloadAllEmojiButton);
-  buttonsWrapper.appendChild(deleteAllEmojiButton);
-});
-
-// 一括ダウンロード処理
-downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
-// 一括削除処理
-deleteAllEmojiButton.addEventListener('click', () => {
+/**
+ * 削除ボタン押下時処理
+ */
+const onClickDeleteAllEmojiButton = async () => {
   // ダイアログ表示
-  const dialog = allDeleteDialog.cloneNode(true) as HTMLDivElement;
+  const dialog = await createAllDeleteDialog();
   document.body.appendChild(dialog);
   dialog.style.display = 'unset';
 
@@ -158,4 +143,27 @@ deleteAllEmojiButton.addEventListener('click', () => {
     await deleteAllEmoji(names, updateProgress).catch(() => window.location.reload());
     window.location.reload();
   });
+};
+
+// ボタンの追加
+elementReady('.p-customize_emoji_wrapper').then(async () => {
+  // エイリアス追加ボタン
+  const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]');
+  const buttonsWrapper = addAliasButton?.parentElement;
+  if (!addAliasButton || !buttonsWrapper) return;
+
+  // ボタンのラッパー要素の配置を修正
+  buttonsWrapper.removeAttribute('class');
+  buttonsWrapper.style.marginBottom = '12px';
+
+  // ボタンを作成
+  const downloadAllEmojiButton = await createDownloadAllEmojiButton();
+  const deleteAllEmojiButton = await createDeleteAllEmojiButton();
+  // ボタンの追加
+  buttonsWrapper.appendChild(downloadAllEmojiButton);
+  buttonsWrapper.appendChild(deleteAllEmojiButton);
+  // 一括ダウンロード処理
+  downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
+  // 一括削除処理
+  deleteAllEmojiButton.addEventListener('click', onClickDeleteAllEmojiButton);
 });

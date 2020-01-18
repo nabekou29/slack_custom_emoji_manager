@@ -62,6 +62,11 @@ module.exports = {
       inject: false,
       filename: 'all_delete_dialog.html',
       template: path.resolve(__dirname, 'src', 'html', 'all_delete_dialog.html')
+    }),
+    new HtmlWebpackPlugin({
+      inject: false,
+      filename: 'buttons.html',
+      template: path.resolve(__dirname, 'src', 'html', 'buttons.html')
     })
   ],
 
