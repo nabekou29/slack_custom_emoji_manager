@@ -58,14 +58,11 @@ module.exports = {
       skipWaiting: false
     }),
     new CopyPlugin([{ from: './public', to: './' }]),
-    ...['all_delete_dialog.html', 'buttons.html', 'dropzone.html'].map(
-      fileName =>
-        new HtmlWebpackPlugin({
-          inject: false,
-          filename: fileName,
-          template: path.resolve(__dirname, 'src', 'html', fileName)
-        })
-    )
+    new HtmlWebpackPlugin({
+      inject: false,
+      filename: 'index.html',
+      template: path.resolve(__dirname, 'src', 'html', 'index.html')
+    })
   ],
 
   module: {

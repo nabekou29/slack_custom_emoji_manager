@@ -1,5 +1,27 @@
-<div class="ReactModalPortal">
-  <div class="ReactModal__Overlay ReactModal__Overlay--after-open c-dialog p-customize_emoji__dialog_overlay">
+<!-- 一括ダウンロードボタン -->
+<button class="c-button c-button--primary c-button--medium download-all">
+  絵文字を一括でダウンロード
+</button>
+<!-- 一括削除ボタン -->
+<button class="c-button c-button--danger c-button--medium delete-all">
+  絵文字を一括で削除
+</button>
+
+<!-- ドロップゾーン -->
+<div id="upload-dropzone" class="dropzone dropzone-custom"></div>
+
+<!-- ドロップゾーン用プレビュー -->
+<div class="preview-template">
+  <div class="dz-image-custom">
+    <img class="dz-thumbnail" data-dz-thumbnail />
+  </div>
+</div>
+
+<!-- 削除確認ダイアログ -->
+<div class="ReactModalPortal all-delete-dialog">
+  <div
+    class="ReactModal__Overlay ReactModal__Overlay--after-open c-dialog p-customize_emoji__dialog_overlay"
+  >
     <div
       class="ReactModal__Content ReactModal__Content--after-open c-dialog__content p-customize_emoji_list__single_delete"
       tabindex="-1"
@@ -17,7 +39,9 @@
         </button>
       </div>
       <div class="c-dialog__body c-dialog__body--slack_scrollbar">
-        <div>この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。</div>
+        <div>
+          この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。
+        </div>
         <div>※この処理は時間がかかる場合があります。</div>
         <div class="progress" style="display: none;">
           <span class="progress-contents"></span>
@@ -43,7 +67,10 @@
                   <circle class="c-infinite_spinner__bg" cx="50%" cy="50%" r="35"></circle>
                   <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle>
                 </svg>
-                <svg class="c-infinite_spinner__spinner c-infinite_spinner__tail" viewBox="0 0 78 78">
+                <svg
+                  class="c-infinite_spinner__spinner c-infinite_spinner__tail"
+                  viewBox="0 0 78 78"
+                >
                   <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle>
                 </svg>
                 <span aria-live="polite" class="offscreen"></span>

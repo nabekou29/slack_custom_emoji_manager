@@ -7,11 +7,21 @@ import {
   createDropzonePreviewTemplate
 } from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
-import { formatDate, runTasksSequential, saveZipFile, sleep } from './util';
+import { formatDate, runTasksSequential, saveZipFile } from './util';
 
 import Dropzone from 'dropzone';
 import JSZip from 'jszip';
 import elementReady from 'element-ready';
+
+/**
+ * 絵文字の数を1増加します
+ */
+const countUpEmoji = () => {
+  const emojiNum = document.querySelector<HTMLElement>('[data-qa=customize_emoji_count]')!;
+  const txt = emojiNum.innerText || '';
+  const nextNum = parseInt(txt, 10) + 1;
+  emojiNum.innerText = txt.replace(/\d+/, nextNum.toString());
+};
 
 /**
  * 全ての絵文字をダウンロード
@@ -86,18 +96,17 @@ const onClickDeleteAllEmojiButton = async () => {
     confirmButton
       .querySelector('.c-infinite_spinner')
       ?.classList.remove('c-button--loading_spinner--hidden');
-    // プログレスバーを表示
+
+    const [emojis, aliases] = await fetchEmojiImageAndAlias();
+    const names = [...Object.keys(emojis), ...Object.keys(aliases)];
+
+    // プログレスバーの更新
     progressWrapper.style.display = 'block';
     const [progressBar, progressContent] = [
       progressWrapper.querySelector<HTMLDivElement>('.progress-bar'),
       progressWrapper.querySelector<HTMLDivElement>('.progress-contents')
     ];
     if (!progressBar || !progressContent) return;
-
-    const [emojis, aliases] = await fetchEmojiImageAndAlias();
-    const names = [...Object.keys(emojis), ...Object.keys(aliases)];
-
-    // プログレスバーの更新
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
       progressContent.innerText = `${cnt} / ${names.length}`;
@@ -122,19 +131,22 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   buttonsWrapper.classList.add('button-list');
 
   // ドロップゾーンを追加
-  Dropzone.autoDiscover = false;
-  const dropzoneElm = await createDropzone();
-  buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
-  const dropzone = new Dropzone(dropzoneElm, {
-    url: 'mock',
-    autoProcessQueue: false,
-    previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
-    acceptedFiles: 'image/*',
-    dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
-  });
-  dropzone.on('addedfiles', file => {
-    console.log(file);
-  });
+  (async () => {
+    Dropzone.autoDiscover = false;
+    const dropzoneElm = await createDropzone();
+    buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
+    const dropzone = new Dropzone(dropzoneElm, {
+      url: 'mock',
+      autoProcessQueue: false,
+      previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
+      acceptedFiles: 'image/*',
+      dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
+    });
+    dropzone.on('addedfiles', file => {
+      console.log(file);
+      countUpEmoji();
+    });
+  })();
 
   // ボタンを作成
   const downloadAllEmojiButton = await createDownloadAllEmojiButton();
