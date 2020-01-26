@@ -74,13 +74,12 @@ const onClickDeleteAllEmojiButton = async () => {
 
   // 各ボタンを取得
   const [closeButton, cancelButton, confirmButton] = [
-    dialog.querySelector<HTMLButtonElement>('button.close'),
-    dialog.querySelector<HTMLButtonElement>('button.cancel'),
-    dialog.querySelector<HTMLButtonElement>('button.confirm')
+    dialog.querySelector<HTMLButtonElement>('button.close')!,
+    dialog.querySelector<HTMLButtonElement>('button.cancel')!,
+    dialog.querySelector<HTMLButtonElement>('button.confirm')!
   ];
   // プログレスバーを取得
-  const progressWrapper = dialog.querySelector<HTMLDivElement>('.progress');
-  if (!closeButton || !cancelButton || !confirmButton || !progressWrapper) return;
+  const progressWrapper = dialog.querySelector<HTMLDivElement>('.progress')!;
 
   // ×ボタン/キャンセルボタン押下時にダイアログを閉じる
   closeButton.addEventListener('click', () => dialog.remove());
@@ -103,10 +102,9 @@ const onClickDeleteAllEmojiButton = async () => {
     // プログレスバーの更新
     progressWrapper.style.display = 'block';
     const [progressBar, progressContent] = [
-      progressWrapper.querySelector<HTMLDivElement>('.progress-bar'),
-      progressWrapper.querySelector<HTMLDivElement>('.progress-contents')
+      progressWrapper.querySelector<HTMLDivElement>('.progress-bar')!,
+      progressWrapper.querySelector<HTMLDivElement>('.progress-contents')!
     ];
-    if (!progressBar || !progressContent) return;
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
       progressContent.innerText = `${cnt} / ${names.length}`;
@@ -122,9 +120,8 @@ const onClickDeleteAllEmojiButton = async () => {
 // ボタンの追加
 elementReady('.p-customize_emoji_wrapper').then(async () => {
   // エイリアス追加ボタン
-  const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]');
-  const buttonsWrapper = addAliasButton?.parentElement;
-  if (!addAliasButton || !buttonsWrapper) return;
+  const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]')!;
+  const buttonsWrapper = addAliasButton.parentElement!;
 
   // ボタンのラッパー要素のクラスを修正
   buttonsWrapper.removeAttribute('class');
@@ -134,7 +131,7 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   (async () => {
     Dropzone.autoDiscover = false;
     const dropzoneElm = await createDropzone();
-    buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
+    buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
     const dropzone = new Dropzone(dropzoneElm, {
       url: 'mock',
       autoProcessQueue: false,

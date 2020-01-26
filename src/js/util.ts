@@ -79,13 +79,8 @@ export const runTasksSequential = async <T, E>(
         res = await task();
         break;
       } catch (e) {
-        if (
-          i !== rePostNum &&
-          rePostCondition &&
-          rePostCondition(e) &&
-          e.response?.status === 429
-        ) {
-          // リクエスト過多で失敗した場合に再度投げる
+        if (i !== rePostNum && rePostCondition?.(e)) {
+          // 再度投げる
           await sleep(sleepRePost);
           // eslint-disable-next-line no-continue
           continue;
@@ -94,8 +89,7 @@ export const runTasksSequential = async <T, E>(
       }
     }
     cnt += 1;
-    // 指定回数内に成功しない場合は例外が投げられるので
-    // res には必ず値が入る
+    // 指定回数内に成功しない場合は例外が投げられるので res には必ず値が入る
     callback?.(res!, cnt);
     // 負荷軽減
     await sleep(sleepTime);
