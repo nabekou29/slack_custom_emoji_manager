@@ -1,7 +1,14 @@
 import axios, { AxiosError } from 'axios';
-import { createAllDeleteDialog, createDeleteAllEmojiButton, createDownloadAllEmojiButton } from './element';
+import {
+  createAllDeleteDialog,
+  createDeleteAllEmojiButton,
+  createDownloadAllEmojiButton,
+  createDropzone,
+  createDropzonePreviewTemplate
+} from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
 
+import Dropzone from 'dropzone';
 import JSZip from 'jszip';
 import elementReady from 'element-ready';
 
@@ -152,9 +159,24 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   const buttonsWrapper = addAliasButton?.parentElement;
   if (!addAliasButton || !buttonsWrapper) return;
 
-  // ボタンのラッパー要素の配置を修正
+  // ボタンのラッパー要素のクラスを修正
   buttonsWrapper.removeAttribute('class');
-  buttonsWrapper.style.marginBottom = '12px';
+  buttonsWrapper.classList.add('button-list');
+
+  // ドロップゾーンを追加
+  Dropzone.autoDiscover = false;
+  const dropzoneElm = await createDropzone();
+  buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
+  const dropzone = new Dropzone(dropzoneElm, {
+    url: 'mock',
+    autoProcessQueue: false,
+    previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
+    acceptedFiles: 'image/*',
+    dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
+  });
+  dropzone.on('addedfiles', file => {
+    console.log(file);
+  });
 
   // ボタンを作成
   const downloadAllEmojiButton = await createDownloadAllEmojiButton();

@@ -46,7 +46,7 @@ module.exports = {
   entry: {
     content: path.resolve(__dirname, 'src', 'js', 'content.ts'),
     background: path.resolve(__dirname, 'src', 'js', 'background.ts'),
-    main: path.resolve(__dirname, 'src', 'css', 'main.css')
+    main: path.resolve(__dirname, 'src', 'css', 'main.scss')
   },
   plugins: [
     new webpack.ProgressPlugin(),
@@ -58,29 +58,27 @@ module.exports = {
       skipWaiting: false
     }),
     new CopyPlugin([{ from: './public', to: './' }]),
-    new HtmlWebpackPlugin({
-      inject: false,
-      filename: 'all_delete_dialog.html',
-      template: path.resolve(__dirname, 'src', 'html', 'all_delete_dialog.html')
-    }),
-    new HtmlWebpackPlugin({
-      inject: false,
-      filename: 'buttons.html',
-      template: path.resolve(__dirname, 'src', 'html', 'buttons.html')
-    })
+    ...['all_delete_dialog.html', 'buttons.html', 'dropzone.html'].map(
+      fileName =>
+        new HtmlWebpackPlugin({
+          inject: false,
+          filename: fileName,
+          template: path.resolve(__dirname, 'src', 'html', fileName)
+        })
+    )
   ],
 
   module: {
     rules: [
       {
-        test: /.(ts|tsx)$/,
+        test: /.ts$/,
         loader: 'ts-loader',
         include: [path.resolve(__dirname, './src')],
         exclude: [/node_modules/]
       },
       {
-        test: /.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        test: /.scss$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
         include: [path.resolve(__dirname, './src')]
       },
       {

@@ -103,16 +103,45 @@ export const fetchEmojiImageAndAlias = async (): Promise<[{ [k: string]: string 
 };
 
 /**
+ * 絵文字を追加します
+ * @param name 名前
+ * @param fileName ファイル名
+ * @param image 画像
+ */
+export const uploadEmoji = (name: string, fileName: string, image: Blob) => {
+  const form = new FormData();
+  form.append('mode', 'data');
+  form.append('name', name);
+  form.append('image', image, fileName);
+  form.append('token', slackApiData.apiToken);
+
+  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
+};
+
+/**
+ * エイリアスを追加します
+ * @param target 対象
+ * @param alias エイリアス
+ */
+export const uploadAlias = (target: string, alias: string) => {
+  const form = new FormData();
+  form.append('mode', 'alias');
+  form.append('name', alias);
+  form.append('alias_for', target);
+  form.append('token', slackApiData.apiToken);
+
+  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
+};
+
+/**
  * 絵文字/エイリアスを削除します
  * @param name 絵文字名/エイリアス名
- * @returnレスポンス
+ * @return レスポンス
  */
 export const deleteEmoji = (name: string) => {
-  const data = new FormData();
-  data.append('name', name);
-  data.append('token', slackApiData.apiToken);
+  const form = new FormData();
+  form.append('name', name);
+  form.append('token', slackApiData.apiToken);
 
-  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, data, {
-    headers: { 'content-type': 'multipart/form-data' }
-  });
+  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, form);
 };

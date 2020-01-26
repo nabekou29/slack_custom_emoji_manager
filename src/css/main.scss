@@ -1,6 +1,15 @@
+@import '~dropzone/dist/basic.css';
+@import '~dropzone/dist/dropzone.css';
+
+$space-size: 12px;
+
+.button-list {
+  margin-bottom: $space-size;
+}
+
 button.delete-all,
 button.download-all {
-  margin-left: 12px;
+  margin-left: $space-size;
 }
 
 .progress-contents {
@@ -44,4 +53,32 @@ button.download-all {
   background-color: #f0f0f0;
   border-radius: 4px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dropzone-custom {
+  border: 2px dashed #36c5f0;
+  border-radius: 5px;
+  background: #f0f0f0;
+  margin-bottom: $space-size;
+
+  &:hover {
+    background: #dddddd !important;
+  }
+
+  .dz-message {
+    font-size: 16px;
+    text-align: center;
+    margin: 0;
+  }
+
+  .dz-image {
+    width: 32px;
+    height: 32px;
+
+    image {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+    }
+  }
 }
