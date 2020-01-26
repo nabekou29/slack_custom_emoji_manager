@@ -71,14 +71,22 @@ button.download-all {
     margin: 0;
   }
 
-  .dz-image {
-    width: 32px;
-    height: 32px;
+  .preview-template {
+    display: none;
+    &.dz-image-preview {
+      display: inline-block;
+      margin: 2px;
 
-    image {
-      max-height: 100%;
-      max-width: 100%;
-      object-fit: contain;
+      .dz-image-custom {
+        width: 32px;
+        height: 32px;
+
+        .dz-thumbnail {
+          max-height: 100%;
+          max-width: 100%;
+          object-fit: contain;
+        }
+      }
     }
   }
 }

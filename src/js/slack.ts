@@ -48,7 +48,9 @@ export const slackApiData = (() => {
 
   // scriptをリストにする
   const scriptList: HTMLElement[] = [];
-  document.querySelectorAll<HTMLElement>('script[type="text/javascript"]').forEach(script => scriptList.push(script));
+  document
+    .querySelectorAll<HTMLElement>('script[type="text/javascript"]')
+    .forEach(script => scriptList.push(script));
 
   // 埋め込まれているscriptからTokenなどを取得
   scriptList.some(script => {
@@ -76,7 +78,10 @@ export const slackApiData = (() => {
  * 絵文字とエイリアスの一覧を取得
  * @return [絵文字, エイリアス]
  */
-export const fetchEmojiImageAndAlias = async (): Promise<[{ [k: string]: string }, { [k: string]: string }]> => {
+export const fetchEmojiImageAndAlias = async (): Promise<[
+  { [k: string]: string },
+  { [k: string]: string }
+]> => {
   const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
     params: { token: slackApiData.apiToken }
   });

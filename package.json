@@ -59,6 +59,6 @@
   "homepage": "https://github.com/nabekou29/slack_custome_emoji_manager#readme",
   "prettier": {
     "singleQuote": true,
-    "printWidth": 120
+    "printWidth": 100
   }
 }

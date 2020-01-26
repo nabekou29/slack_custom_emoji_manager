@@ -16,12 +16,15 @@ const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: str
 };
 
 /** 一括ダウンロードボタン */
-export const createDownloadAllEmojiButton = () => fetchHtml<HTMLDivElement>('buttons.html', '.download-all');
+export const createDownloadAllEmojiButton = () =>
+  fetchHtml<HTMLDivElement>('buttons.html', '.download-all');
 /** 一括削除ボタン */
-export const createDeleteAllEmojiButton = () => fetchHtml<HTMLDivElement>('buttons.html', '.delete-all');
+export const createDeleteAllEmojiButton = () =>
+  fetchHtml<HTMLDivElement>('buttons.html', '.delete-all');
 /** 確認ダイアログ */
 export const createAllDeleteDialog = () => fetchHtml<HTMLDivElement>('all_delete_dialog.html');
 /** ドロップゾーン */
 export const createDropzone = () => fetchHtml<HTMLDivElement>('dropzone.html', '#upload-dropzone');
 /** ドロップゾーン用プレビュー */
-export const createDropzonePreviewTemplate = () => fetchHtml<HTMLDivElement>('dropzone.html', '.preview-template');
+export const createDropzonePreviewTemplate = () =>
+  fetchHtml<HTMLDivElement>('dropzone.html', '.preview-template');

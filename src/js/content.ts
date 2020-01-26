@@ -7,37 +7,11 @@ import {
   createDropzonePreviewTemplate
 } from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
+import { formatDate, runTasksSequential, saveZipFile, sleep } from './util';
 
 import Dropzone from 'dropzone';
 import JSZip from 'jszip';
 import elementReady from 'element-ready';
-
-/**
- * 処理を指定時間中断します
- * @param ms 止める時間
- */
-const sleep = (ms: number) => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-};
-
-/**
- * ZIPオブジェクトを保存
- * @param zip ZIP
- * @param fileName ファイル名
- */
-const saveZipFile = async (zip: JSZip, fileName: string) => {
-  const content = await zip.generateAsync({ type: 'blob' });
-
-  const downLoadLink = document.createElement('a');
-  downLoadLink.download = fileName;
-  downLoadLink.href = URL.createObjectURL(content);
-  downLoadLink.dataset.downloadurl = ['blob', downLoadLink.download, downLoadLink.href].join(':');
-  downLoadLink.click();
-};
 
 /**
  * 全ての絵文字をダウンロード
@@ -62,14 +36,7 @@ const downloadAllEmoji = async () => {
     zip.file('_alias.json', JSON.stringify(aliases, null, 2));
   }
 
-  const current = new Date();
-  // yyyy_MM_dd の形式で日付を取得
-  const formatedCurrentDate = [
-    `000${current.getFullYear()}`.slice(-4),
-    `0${current.getMonth() + 1}`.slice(-2),
-    `0${current.getDate()}`.slice(-2)
-  ].join('_');
-  saveZipFile(zip, `emoji_${workSpaceName}_${formatedCurrentDate}.zip`);
+  saveZipFile(zip, `emoji_${workSpaceName}_${formatDate(new Date())}.zip`);
 };
 
 /**
@@ -78,32 +45,12 @@ const downloadAllEmoji = async () => {
  * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
 const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) => {
-  // 失敗時にリクエストを投げ直す回数
-  const RE_POST_NUM = 3;
-
-  let cnt = 0;
-  for (const name of names) {
-    for (const i of [...Array(RE_POST_NUM + 1).keys()]) {
-      try {
-        // 削除
-        await deleteEmoji(name);
-        break;
-      } catch (e) {
-        const err = e as AxiosError;
-        // リクエスト過多で失敗した場合3秒後に再度投げる
-        if (i !== RE_POST_NUM && err.response?.status === 429) {
-          await sleep(3000);
-          // eslint-disable-next-line no-continue
-          continue;
-        }
-        throw e;
-      }
-    }
-    cnt += 1;
-    callback(cnt);
-    // 負荷軽減
-    await sleep(100);
-  }
+  const tasks = names.map(name => () => deleteEmoji(name));
+  const rePostCondition = (e: AxiosError) => e.response?.status === 429;
+  await runTasksSequential(tasks, {
+    callback: (_, cnt) => callback(cnt),
+    rePostCondition
+  });
 };
 
 /**
@@ -116,30 +63,41 @@ const onClickDeleteAllEmojiButton = async () => {
   dialog.style.display = 'unset';
 
   // 各ボタンを取得
-  const [closeButton, cancelButton, confirmButton] = ['button.close', 'button.cancel', 'button.confirm'].map(selector =>
-    dialog.querySelector<HTMLButtonElement>(selector)
-  );
+  const [closeButton, cancelButton, confirmButton] = [
+    dialog.querySelector<HTMLButtonElement>('button.close'),
+    dialog.querySelector<HTMLButtonElement>('button.cancel'),
+    dialog.querySelector<HTMLButtonElement>('button.confirm')
+  ];
   // プログレスバーを取得
   const progressWrapper = dialog.querySelector<HTMLDivElement>('.progress');
   if (!closeButton || !cancelButton || !confirmButton || !progressWrapper) return;
 
   // ×ボタン/キャンセルボタン押下時にダイアログを閉じる
-  [closeButton, cancelButton].forEach(b => b.addEventListener('click', () => dialog.remove()));
+  closeButton.addEventListener('click', () => dialog.remove());
+  cancelButton.addEventListener('click', () => dialog.remove());
 
   // 削除ボタン押下時処理
   confirmButton.addEventListener('click', async () => {
     // ×ボタン/キャンセルボタン押下に画面を更新
-    [closeButton, cancelButton].forEach(b => b.addEventListener('click', () => window.location.reload()));
+    closeButton.addEventListener('click', () => window.location.reload());
+    cancelButton.addEventListener('click', () => window.location.reload());
+
     // スピナーを表示
-    confirmButton.querySelector('.c-infinite_spinner')?.classList.remove('c-button--loading_spinner--hidden');
+    confirmButton
+      .querySelector('.c-infinite_spinner')
+      ?.classList.remove('c-button--loading_spinner--hidden');
     // プログレスバーを表示
     progressWrapper.style.display = 'block';
-    const progressBar = progressWrapper.querySelector<HTMLDivElement>('.progress-bar');
-    const progressContent = progressWrapper.querySelector<HTMLDivElement>('.progress-contents');
+    const [progressBar, progressContent] = [
+      progressWrapper.querySelector<HTMLDivElement>('.progress-bar'),
+      progressWrapper.querySelector<HTMLDivElement>('.progress-contents')
+    ];
     if (!progressBar || !progressContent) return;
 
     const [emojis, aliases] = await fetchEmojiImageAndAlias();
     const names = [...Object.keys(emojis), ...Object.keys(aliases)];
+
+    // プログレスバーの更新
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
       progressContent.innerText = `${cnt} / ${names.length}`;
