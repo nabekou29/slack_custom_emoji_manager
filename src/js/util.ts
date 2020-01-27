@@ -1,4 +1,5 @@
 import JSZip from 'jszip';
+import JabQueue from './job-queue';
 
 /**
  * 処理を指定時間中断します
@@ -60,7 +61,7 @@ interface Options<T, E> {
  * @param options.sleep タスクごとの間隔 {default: 100}
  * @param options.sleepRePost 再度処理を試みる間隔 {default: 3000}
  */
-export const runTasksSequential = async <T, E>(
+export const runTasksSequential = <T, E>(
   tasks: (() => Promise<T>)[],
   {
     callback,
@@ -70,28 +71,35 @@ export const runTasksSequential = async <T, E>(
     sleepRePost = 3000
   }: Options<T, E>
 ) => {
-  let cnt = 0;
-  for (const task of tasks) {
-    let res: T;
-    for (const i of [...Array(rePostNum + 1).keys()]) {
-      try {
-        // 削除
-        res = await task();
-        break;
-      } catch (e) {
-        if (i !== rePostNum && rePostCondition?.(e)) {
-          // 再度投げる
-          await sleep(sleepRePost);
-          // eslint-disable-next-line no-continue
-          continue;
+  return new Promise(resolve => {
+    const queue = new JabQueue({
+      concurrency: 1,
+      onSuccess: ({ result, cnt }: { result: T; cnt: number }) => callback?.(result, cnt),
+      onComplete: () => resolve()
+    });
+    const jobs = tasks.map((task, idx) => {
+      return async () => {
+        let res: T;
+        for (const i of [...Array(rePostNum + 1).keys()]) {
+          try {
+            // 削除
+            res = await task();
+            break;
+          } catch (e) {
+            if (i !== rePostNum && rePostCondition?.(e)) {
+              // 再度投げる
+              await sleep(sleepRePost);
+              // eslint-disable-next-line no-continue
+              continue;
+            }
+            throw e;
+          }
         }
-        throw e;
-      }
-    }
-    cnt += 1;
-    // 指定回数内に成功しない場合は例外が投げられるので res には必ず値が入る
-    callback?.(res!, cnt);
-    // 負荷軽減
-    await sleep(sleepTime);
-  }
+        // 負荷軽減
+        await sleep(sleepTime);
+        return { result: res!, cnt: idx + 1 };
+      };
+    });
+    queue.addAll(jobs);
+  });
 };
