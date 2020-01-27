@@ -6,7 +6,7 @@ import {
   createDropzone,
   createDropzonePreviewTemplate
 } from './element';
-import { deleteEmoji, fetchEmojiImageAndAlias, workSpaceName } from './slack';
+import { deleteEmoji, fetchEmojiImageAndAlias, uploadEmoji, workSpaceName } from './slack';
 import { formatDate, runTasksSequential, saveZipFile } from './util';
 
 import Dropzone from 'dropzone';
@@ -17,6 +17,7 @@ import elementReady from 'element-ready';
  * 絵文字の数を1増加します
  */
 const countUpEmoji = () => {
+  // FIXME: 削除時に更新されなくなる
   const emojiNum = document.querySelector<HTMLElement>('[data-qa=customize_emoji_count]')!;
   const txt = emojiNum.innerText || '';
   const nextNum = parseInt(txt, 10) + 1;
@@ -117,6 +118,28 @@ const onClickDeleteAllEmojiButton = async () => {
   });
 };
 
+/**
+ * ドロップゾーンの初期化
+ */
+const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
+  Dropzone.autoDiscover = false;
+  const dropzoneElm = await createDropzone();
+  const dropzone = new Dropzone(dropzoneElm, {
+    url: 'mock',
+    autoProcessQueue: false,
+    previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
+    acceptedFiles: 'image/*',
+    dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
+  });
+  dropzone.on('addedfile', async file => {
+    const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
+    await uploadEmoji(name, file.name, file);
+    countUpEmoji();
+  });
+
+  return [dropzone, dropzoneElm];
+};
+
 // ボタンの追加
 elementReady('.p-customize_emoji_wrapper').then(async () => {
   // エイリアス追加ボタン
@@ -128,22 +151,8 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   buttonsWrapper.classList.add('button-list');
 
   // ドロップゾーンを追加
-  (async () => {
-    Dropzone.autoDiscover = false;
-    const dropzoneElm = await createDropzone();
-    buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
-    const dropzone = new Dropzone(dropzoneElm, {
-      url: 'mock',
-      autoProcessQueue: false,
-      previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
-      acceptedFiles: 'image/*',
-      dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
-    });
-    dropzone.on('addedfiles', file => {
-      console.log(file);
-      countUpEmoji();
-    });
-  })();
+  const [_, dropzoneElm] = await initDropzone();
+  buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
 
   // ボタンを作成
   const downloadAllEmojiButton = await createDownloadAllEmojiButton();

@@ -33,7 +33,7 @@ export const createDeleteAllEmojiButton = () =>
   fetchHtml<HTMLDivElement>('index.html', '.delete-all');
 /** 確認ダイアログ */
 export const createAllDeleteDialog = () =>
-  fetchHtml<HTMLDivElement>('index.html', 'all-delete-dialog');
+  fetchHtml<HTMLDivElement>('index.html', '.all-delete-dialog');
 /** ドロップゾーン */
 export const createDropzone = () => fetchHtml<HTMLDivElement>('index.html', '#upload-dropzone');
 /** ドロップゾーン用プレビュー */

@@ -78,15 +78,52 @@ button.download-all {
       margin: 2px;
 
       .dz-image-custom {
+        position: relative;
         width: 32px;
         height: 32px;
+
+        &.loading,
+        &.warning {
+          img {
+            opacity: 0.5;
+          }
+        }
 
         .dz-thumbnail {
           max-height: 100%;
           max-width: 100%;
           object-fit: contain;
         }
+
+        .warning-mark,
+        .c-infinite_spinner {
+          position: absolute;
+          display: none;
+          top: 50%;
+          left: 50%;
+          transform: translateY(-50%) translateX(-50%);
+          width: 24px;
+          height: 24px;
+          margin: auto;
+        }
+
+        &.loading .c-infinite_spinner {
+          display: block;
+        }
+
+        &.warning .warning-mark {
+          display: block;
+        }
       }
     }
+  }
+
+  .exclamation-mark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    fill: rgb(75, 75, 75);
   }
 }
