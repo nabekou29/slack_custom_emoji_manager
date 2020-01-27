@@ -7,10 +7,11 @@ import {
   createDropzonePreviewTemplate
 } from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, uploadEmoji, workSpaceName } from './slack';
-import { formatDate, runTasksSequential, saveZipFile } from './util';
+import { formatDate, retry, saveZipFile, sleep } from './util';
 
 import Dropzone from 'dropzone';
 import JSZip from 'jszip';
+import JabQueue from './job-queue';
 import elementReady from 'element-ready';
 
 /**
@@ -56,11 +57,28 @@ const downloadAllEmoji = async () => {
  * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
 const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) => {
-  const tasks = names.map(name => () => deleteEmoji(name));
-  const rePostCondition = (e: AxiosError) => e.response?.status === 429;
-  await runTasksSequential(tasks, {
-    callback: (_, cnt) => callback(cnt),
-    rePostCondition
+  const condition = (e: AxiosError) => e.response?.status === 429;
+
+  const jobs = names.map((name, i) => async () => {
+    // 削除処理(3回まで失敗を許容する)
+    await retry(() => deleteEmoji(name), {
+      condition,
+      num: 3,
+      sleep: 3000
+    })();
+    // 負荷軽減
+    await sleep(100);
+    return i;
+  });
+  // 削除処理を実行
+  // 全ての削除が完了(onComplete)したタイミングでresolveする
+  await new Promise(resolve => {
+    const queue = new JabQueue({
+      concurrency: 1,
+      onSuccess: (cnt: number) => callback(cnt),
+      onComplete: () => resolve()
+    });
+    queue.addAll(jobs);
   });
 };
 

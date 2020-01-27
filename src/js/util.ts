@@ -43,63 +43,44 @@ export const saveZipFile = async (zip: JSZip, fileName: string) => {
   downLoadLink.click();
 };
 
-/** オプション */
-interface Options<T, E> {
-  callback?: (res: T, cnt: number) => any;
-  rePostCondition?: (e: E) => boolean;
-  rePostNum?: number;
-  sleep?: number;
-  sleepRePost?: number;
-}
-
 /**
- * 複数のタスクを逐次処理する
+ * タスクが失敗した際に再度タスクを実行する
  * @param tasks タスク
- * @param options.callback タスク完了時に呼ばれる関数
- * @param options.rePostCondition 再度処理を試みる条件
- * @param options.rePostNum 再度処理を試みる回数 {default: 3}
- * @param options.sleep タスクごとの間隔 {default: 100}
- * @param options.sleepRePost 再度処理を試みる間隔 {default: 3000}
+ * @param options.condition 再度処理を試みる条件
+ * @param options.num 再度処理を試みる回数
+ * @param options.sleep 再度処理を試みる間隔
  */
-export const runTasksSequential = <T, E>(
-  tasks: (() => Promise<T>)[],
+export const retry = <T, E>(
+  task: () => Promise<T>,
   {
-    callback,
-    rePostCondition,
-    rePostNum = 3,
-    sleep: sleepTime = 100,
-    sleepRePost = 3000
-  }: Options<T, E>
-) => {
-  return new Promise(resolve => {
-    const queue = new JabQueue({
-      concurrency: 1,
-      onSuccess: ({ result, cnt }: { result: T; cnt: number }) => callback?.(result, cnt),
-      onComplete: () => resolve()
-    });
-    const jobs = tasks.map((task, idx) => {
-      return async () => {
-        let res: T;
-        for (const i of [...Array(rePostNum + 1).keys()]) {
-          try {
-            // 削除
-            res = await task();
-            break;
-          } catch (e) {
-            if (i !== rePostNum && rePostCondition?.(e)) {
-              // 再度投げる
-              await sleep(sleepRePost);
-              // eslint-disable-next-line no-continue
-              continue;
-            }
-            throw e;
-          }
+    condition,
+    num,
+    sleep: sleepTime
+  }: {
+    condition?: (e: E) => boolean;
+    num: number;
+    sleep: number;
+  }
+): (() => Promise<T>) => {
+  return async () => {
+    let res: T;
+    for (const i of [...Array(num + 1).keys()]) {
+      try {
+        // 削除
+        res = await task();
+        break;
+      } catch (e) {
+        if (i !== num && condition?.(e)) {
+          // 再度投げる
+          await sleep(sleepTime);
+          // eslint-disable-next-line no-continue
+          continue;
         }
-        // 負荷軽減
-        await sleep(sleepTime);
-        return { result: res!, cnt: idx + 1 };
-      };
-    });
-    queue.addAll(jobs);
-  });
+        throw e;
+      }
+    }
+    // 成功しなかった場合には例外が投げられるため、
+    // ここに到達した際には res には必ず値が入っている
+    return res!;
+  };
 };
