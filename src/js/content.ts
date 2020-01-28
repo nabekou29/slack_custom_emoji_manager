@@ -68,7 +68,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
     })();
     // 負荷軽減
     await sleep(100);
-    return i;
+    return i + 1;
   });
   // 削除処理を実行
   // 全ての削除が完了(onComplete)したタイミングでresolveする
@@ -151,7 +151,7 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
   });
 
   const queue = new JabQueue<void, AxiosError>({
-    concurrency: 3
+    concurrency: 1
   });
 
   // 絵文字登録処理
@@ -172,8 +172,13 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
           }
           imageWrapper.classList.remove('loading');
         })
-        .catch(() => {
+        .catch(e => {
+          if (!(e instanceof Error)) return;
           imageWrapper.classList.replace('loading', 'warning');
+          const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
+            '.warning-mark .cem-tooltip .content'
+          )!;
+          tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
         });
       // 負荷軽減
       await sleep(100);
