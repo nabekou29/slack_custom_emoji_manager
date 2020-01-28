@@ -98,7 +98,7 @@ const onClickDeleteAllEmojiButton = async () => {
     dialog.querySelector<HTMLButtonElement>('button.confirm')!
   ];
   // プログレスバーを取得
-  const progressWrapper = dialog.querySelector<HTMLDivElement>('.progress')!;
+  const progressWrapper = dialog.querySelector<HTMLDivElement>('.cem-progress')!;
 
   // ×ボタン/キャンセルボタン押下時にダイアログを閉じる
   closeButton.addEventListener('click', () => dialog.remove());
@@ -121,8 +121,8 @@ const onClickDeleteAllEmojiButton = async () => {
     // プログレスバーの更新
     progressWrapper.style.display = 'block';
     const [progressBar, progressContent] = [
-      progressWrapper.querySelector<HTMLDivElement>('.progress-bar')!,
-      progressWrapper.querySelector<HTMLDivElement>('.progress-contents')!
+      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-bar')!,
+      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-contents')!
     ];
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
@@ -149,10 +149,35 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     acceptedFiles: 'image/*',
     dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
   });
+
+  const queue = new JabQueue<void, AxiosError>({
+    concurrency: 3
+  });
+
+  // 絵文字登録処理
   dropzone.on('addedfile', async file => {
     const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
-    await uploadEmoji(name, file.name, file);
-    countUpEmoji();
+    const imageWrapper = file.previewElement.querySelector('.cem-dz-image')!;
+    const condition = (e: AxiosError) => e.response?.status === 429;
+
+    queue.add(async () => {
+      await retry(() => uploadEmoji(name, file.name, file), {
+        condition,
+        num: 3,
+        sleep: 3000
+      })()
+        .then(res => {
+          if (res.data.error) {
+            throw new Error(res.data.error);
+          }
+          imageWrapper.classList.remove('loading');
+        })
+        .catch(() => {
+          imageWrapper.classList.replace('loading', 'warning');
+        });
+      // 負荷軽減
+      await sleep(100);
+    });
   });
 
   return [dropzone, dropzoneElm];

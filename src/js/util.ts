@@ -46,18 +46,18 @@ export const saveZipFile = async (zip: JSZip, fileName: string) => {
 /**
  * タスクが失敗した際に再度タスクを実行する
  * @param tasks タスク
- * @param options.condition 再度処理を試みる条件
+ * @param options.condition 再度処理を試みる条件。未指定時は必ず再度処理を試みる
  * @param options.num 再度処理を試みる回数
  * @param options.sleep 再度処理を試みる間隔
  */
 export const retry = <T, E>(
   task: () => Promise<T>,
   {
-    condition,
+    condition = () => true,
     num,
     sleep: sleepTime
   }: {
-    condition?: (e: E) => boolean;
+    condition: (e: E) => boolean;
     num: number;
     sleep: number;
   }
@@ -70,7 +70,7 @@ export const retry = <T, E>(
         res = await task();
         break;
       } catch (e) {
-        if (i !== num && condition?.(e)) {
+        if (i !== num && condition(e)) {
           // 再度投げる
           await sleep(sleepTime);
           // eslint-disable-next-line no-continue

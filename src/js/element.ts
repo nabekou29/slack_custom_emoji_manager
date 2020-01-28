@@ -38,4 +38,4 @@ export const createAllDeleteDialog = () =>
 export const createDropzone = () => fetchHtml<HTMLDivElement>('index.html', '#upload-dropzone');
 /** ドロップゾーン用プレビュー */
 export const createDropzonePreviewTemplate = () =>
-  fetchHtml<HTMLDivElement>('index.html', '.preview-template');
+  fetchHtml<HTMLDivElement>('index.html', '.cem-preview-template');

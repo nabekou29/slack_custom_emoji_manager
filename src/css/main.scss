@@ -12,40 +12,8 @@ button.download-all {
   margin-left: $space-size;
 }
 
-.progress-contents {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateY(-50%) translateX(-50%);
-  margin: auto;
-  color: #2f2f2f;
-}
-
-.progress-bar {
-  float: left;
-  width: 0%;
-  height: 100%;
-  font-size: 12px;
-  line-height: 20px;
-  text-align: center;
-  background-color: #36c5f0;
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
-  transition: width 0.6s ease;
-
-  background-image: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.2) 75%,
-    transparent 75%,
-    transparent
-  );
-  background-size: 40px 40px;
-}
-
-.progress {
+/* プログレスバーの大枠 */
+.cem-progress {
   position: relative;
   height: 20px;
   margin: 5px 0px 20px 0px;
@@ -53,9 +21,45 @@ button.download-all {
   background-color: #f0f0f0;
   border-radius: 4px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  /* プログレスバーの文字 */
+  .cem-progress-contents {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    margin: auto;
+    color: #2f2f2f;
+  }
+
+  /* プログレスバーの棒の部分 */
+  .cem-progress-bar {
+    float: left;
+    width: 0%;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    background-color: #36c5f0;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    transition: width 0.6s ease;
+
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 40px 40px;
+  }
 }
 
-.dropzone-custom {
+/* ドロップゾーン */
+.cem-dropzone {
   border: 2px dashed #36c5f0;
   border-radius: 5px;
   background: #f0f0f0;
@@ -65,23 +69,26 @@ button.download-all {
     background: #dddddd !important;
   }
 
+  /* ドロップゾーンの文字 */
   .dz-message {
     font-size: 16px;
     text-align: center;
     margin: 0;
   }
 
-  .preview-template {
+  /* ドロップゾーンに表示される画像のプレビュー */
+  .cem-preview-template {
     display: none;
     &.dz-image-preview {
       display: inline-block;
       margin: 2px;
 
-      .dz-image-custom {
+      .cem-dz-image {
         position: relative;
         width: 32px;
         height: 32px;
 
+        /* ロード中/エラー時 */
         &.loading,
         &.warning {
           img {
@@ -95,6 +102,7 @@ button.download-all {
           object-fit: contain;
         }
 
+        /* アイコンの位置 */
         .warning-mark,
         .c-infinite_spinner {
           position: absolute;
@@ -118,6 +126,7 @@ button.download-all {
     }
   }
 
+  /* 「！」マーク */
   .exclamation-mark {
     position: absolute;
     top: 0;
@@ -125,5 +134,74 @@ button.download-all {
     width: 100%;
     height: 100%;
     fill: rgb(75, 75, 75);
+  }
+
+  /* * * ツールチップ全体 * * */
+  .cem-tooltip {
+    /* 位置の情報 */
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+
+    /* 中身の情報 */
+    background: var(--color-theme);
+    border-radius: 100%;
+
+    /* * * 説明文 * * */
+    .content {
+      /* 位置の情報 */
+      position: absolute;
+      display: block;
+      width: 14em;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 100%;
+
+      /* 中身の情報 */
+      background: var(--color-theme);
+      color: #fefefe;
+      background-color: #2f2f2f;
+      font-size: 12px;
+      padding: 10px;
+      line-height: 1.4;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+
+      /* アニメーションの情報 */
+      transition: all 0.4s ease;
+      visibility: hidden;
+      opacity: 0;
+      bottom: 100%;
+
+      /* * * 吹き出しのしっぽ * * */
+      &::after {
+        /* 位置の情報 */
+        position: absolute;
+        display: block;
+        width: 10px;
+        height: 10px;
+        left: 50%;
+        bottom: -5px;
+        transform: rotateZ(45deg) translateX(-50%);
+        transform-origin: left;
+
+        /* 中身の情報 */
+        content: ' ';
+        background: var(--color-theme);
+        background-color: inherit;
+      }
+    }
+
+    &:hover {
+      .content {
+        /* アニメーションの情報 */
+        visibility: visible;
+        opacity: 1;
+        bottom: calc(100% + 10px);
+      }
+    }
   }
 }
