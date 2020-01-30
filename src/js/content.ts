@@ -18,11 +18,10 @@ import elementReady from 'element-ready';
  * 絵文字の数を1増加します
  */
 const countUpEmoji = () => {
-  // FIXME: 削除時に更新されなくなる
   const emojiNum = document.querySelector<HTMLElement>('[data-qa=customize_emoji_count]')!;
   const txt = emojiNum.innerText || '';
   const nextNum = parseInt(txt, 10) + 1;
-  emojiNum.innerText = txt.replace(/\d+/, nextNum.toString());
+  emojiNum.innerHTML = txt.replace(/\d+/, nextNum.toString());
 };
 
 /**
@@ -161,17 +160,21 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     const condition = (e: AxiosError) => e.response?.status === 429;
 
     queue.add(async () => {
+      // 登録処理(3回まで失敗を許容する)
       await retry(() => uploadEmoji(name, file.name, file), {
         condition,
         num: 3,
         sleep: 3000
       })()
+        // 成功時にローディングアイコンを除去
         .then(res => {
           if (res.data.error) {
             throw new Error(res.data.error);
           }
           imageWrapper.classList.remove('loading');
+          countUpEmoji();
         })
+        // エラー時にエラーアイコンとツールチップを表示
         .catch(e => {
           if (!(e instanceof Error)) return;
           imageWrapper.classList.replace('loading', 'warning');

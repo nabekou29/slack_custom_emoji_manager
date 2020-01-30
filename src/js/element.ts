@@ -9,7 +9,7 @@ const cache: { [key: string]: HTMLDivElement } = {};
  */
 const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: string) => {
   const wrapper =
-    cache[resource] ||
+    cache[resource] ??
     (await (async () => {
       const res = await fetch(chrome.runtime.getURL(resource), { method: 'GET' });
       const html = await res.text();

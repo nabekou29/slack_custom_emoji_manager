@@ -7,6 +7,9 @@ interface JabQueueOptions<T, E> {
   onComplete?: () => any;
 }
 
+/**
+ * ジョブの実行を管理するクラス
+ */
 export default class JabQueue<T, E = Error> {
   private queue: Job<T>[] = [];
 
@@ -20,6 +23,7 @@ export default class JabQueue<T, E = Error> {
 
   private onComplete?: () => any;
 
+  /** コンストラクタ */
   constructor(options: JabQueueOptions<T, E>) {
     this.concurrency = options.concurrency ?? Infinity;
     this.onSuccess = options.onSuccess;
