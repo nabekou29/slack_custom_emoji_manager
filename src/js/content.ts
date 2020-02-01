@@ -77,6 +77,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
 const handleClickDeleteAllEmojiButton = async () => {
   // ダイアログ表示
   const dialog = await createAllDeleteDialog();
+
   document.body.appendChild(dialog);
   dialog.style.display = 'unset';
 

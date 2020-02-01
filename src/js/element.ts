@@ -20,9 +20,9 @@ const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: str
     })());
 
   if (selector) {
-    return wrapper.querySelector(selector) as T;
+    return wrapper.querySelector(selector)?.cloneNode(true) as T;
   }
-  return wrapper.firstChild as T;
+  return wrapper.firstChild?.cloneNode(true) as T;
 };
 
 /** 一括ダウンロードボタン */
