@@ -34,12 +34,12 @@ const handleCompleteWrapper = (
 
 // 絵文字追加完了時処理
 const handleCompleteEmojiAdd = handleCompleteWrapper((tabId, _) =>
-  chrome.tabs.sendMessage(tabId, 'add')
+  chrome.tabs.sendMessage(tabId, 'cem:add')
 );
 
 // 絵文字削除完了時処理
 const handleCompleteEmojiRemove = handleCompleteWrapper((tabId, _) =>
-  chrome.tabs.sendMessage(tabId, 'remove')
+  chrome.tabs.sendMessage(tabId, 'cem:remove')
 );
 
 (() => {
@@ -49,7 +49,7 @@ const handleCompleteEmojiRemove = handleCompleteWrapper((tabId, _) =>
   // 対象のタブからの初期化メッセージをトリガーにイベントを登録する
   chrome.runtime.onMessage.addListener((message, sender) => {
     const tabId = sender.tab?.id;
-    if (message !== 'init' || !tabId || tabIds.includes(tabId)) {
+    if (message !== 'cem:init' || !tabId || tabIds.includes(tabId)) {
       return;
     }
 

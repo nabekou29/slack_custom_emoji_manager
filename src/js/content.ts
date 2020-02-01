@@ -136,7 +136,8 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     autoProcessQueue: false,
     previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
-    dictDefaultMessage: 'ここに追加したい絵文字をドラッグ＆ドロップ'
+    dictDefaultMessage:
+      'ここに追加したい絵文字をドラッグ＆ドロップ<br><small>"emoji.png"は"emoji"として登録されます</small>'
   });
 
   const queue = new JabQueue<void, AxiosError>({
@@ -180,7 +181,7 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
   return [dropzone, dropzoneElm];
 };
 
-// ボタンの追加
+/* 要素の追加イベントの登録を行う */
 elementReady('.p-customize_emoji_wrapper').then(async () => {
   // 絵文字数
   const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
@@ -228,14 +229,14 @@ const changeEmojiNumber = (diff: number) => () => {
   emojiCount.innerHTML = txt.replace(/\d+/, nextNum.toString());
 };
 
+/* backgroundとの連携を行う */
 (() => {
-  // backgroundとの連携を開始
-  chrome.runtime.sendMessage('init');
+  chrome.runtime.sendMessage('cem:init');
   // backgroundからのメッセージに応じて処理を実行
-  chrome.runtime.onMessage.addListener((message: 'add' | 'remove') => {
+  chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => {
     ({
-      add: changeEmojiNumber(1),
-      remove: changeEmojiNumber(-1)
+      'cem:add': changeEmojiNumber(1),
+      'cem:remove': changeEmojiNumber(-1)
     }[message]?.());
   });
 })();
