@@ -21,6 +21,9 @@
       "matches": ["*://*.slack.com/*/emoji*"]
     }
   ],
+  "background": {
+    "scripts": ["background.js"]
+  },
   "web_accessible_resources": ["index.html"],
   "permissions": [
     "webRequest",

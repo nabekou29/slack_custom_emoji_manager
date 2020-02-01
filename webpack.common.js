@@ -45,6 +45,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: {
     content: path.resolve(__dirname, 'src', 'js', 'content.ts'),
+    background: path.resolve(__dirname, 'src', 'js', 'background.ts'),
     main: path.resolve(__dirname, 'src', 'css', 'main.scss')
   },
   plugins: [

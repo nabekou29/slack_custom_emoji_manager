@@ -15,16 +15,6 @@ import JabQueue from './job-queue';
 import elementReady from 'element-ready';
 
 /**
- * 絵文字の数を1増加します
- */
-const countUpEmoji = () => {
-  const emojiNum = document.querySelector<HTMLElement>('[data-qa=customize_emoji_count]')!;
-  const txt = emojiNum.innerText || '';
-  const nextNum = parseInt(txt, 10) + 1;
-  emojiNum.innerHTML = txt.replace(/\d+/, nextNum.toString());
-};
-
-/**
  * 全ての絵文字をダウンロード
  */
 const downloadAllEmoji = async () => {
@@ -84,7 +74,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
 /**
  * 削除ボタン押下時処理
  */
-const onClickDeleteAllEmojiButton = async () => {
+const handleClickDeleteAllEmojiButton = async () => {
   // ダイアログ表示
   const dialog = await createAllDeleteDialog();
   document.body.appendChild(dialog);
@@ -172,7 +162,6 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
             throw new Error(res.data.error);
           }
           imageWrapper.classList.remove('loading');
-          countUpEmoji();
         })
         // エラー時にエラーアイコンとツールチップを表示
         .catch(e => {
@@ -193,6 +182,17 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
 
 // ボタンの追加
 elementReady('.p-customize_emoji_wrapper').then(async () => {
+  // 絵文字数
+  const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
+    '[data-qa=customize_emoji_count]'
+  )!;
+  const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
+  emojiCountOrigin.removeAttribute('class');
+  emojiCountOrigin.style.display = 'none';
+  emojiCountOrigin.parentElement!.insertBefore(emojiCount, emojiCountOrigin);
+
+  emojiCount.classList.add('cem-emoji-count');
+
   // エイリアス追加ボタン
   const addAliasButton = document.querySelector('button[data-qa=customize_emoji_add_alias]')!;
   const buttonsWrapper = addAliasButton.parentElement!;
@@ -214,5 +214,28 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   // 一括ダウンロード処理
   downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
   // 一括削除処理
-  deleteAllEmojiButton.addEventListener('click', onClickDeleteAllEmojiButton);
+  deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
 });
+
+// 絵文字の総数を増減する
+const changeEmojiNumber = (diff: number) => () => {
+  const emojiCount = document.querySelector<HTMLHeadingElement>('.cem-emoji-count');
+  if (!emojiCount) {
+    return;
+  }
+  const txt = emojiCount.innerText || '';
+  const nextNum = parseInt(txt, 10) + diff;
+  emojiCount.innerHTML = txt.replace(/\d+/, nextNum.toString());
+};
+
+(() => {
+  // backgroundとの連携を開始
+  chrome.runtime.sendMessage('init');
+  // backgroundからのメッセージに応じて処理を実行
+  chrome.runtime.onMessage.addListener((message: 'add' | 'remove') => {
+    ({
+      add: changeEmojiNumber(1),
+      remove: changeEmojiNumber(-1)
+    }[message]?.());
+  });
+})();
