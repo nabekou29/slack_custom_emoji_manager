@@ -1,4 +1,4 @@
-# Slack Custome Emoji Manager
+# Slack Custom Emoji Manager
 
 Slack のカスタム絵文字管理画面に以下の機能を追加します。
 
