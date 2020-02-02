@@ -1,15 +1,16 @@
-# 🚀 Welcome to your new awesome project!
+# Slack Custome Emoji Manager
 
-This project has been created using **webpack scaffold**, you can now run
+Slack のカスタム絵文字管理画面に以下の機能を追加します。
 
-```
-npm run build
-```
+- 絵文字の一括追加
+- 絵文字の一括削除
+- 絵文字の一括ダウンロード(zip)
 
-or
+## インストール
 
-```
-yarn build
-```
+https://chrome.google.com/webstore/detail/slack-custom-emoji-manage/cgipifjpcbhdppbjjphmgkmmgbeaggpc
 
-to bundle your application
+## ビルド
+
+1. `npm ci`
+1. `npm run build` or `npm run build:prod`
