@@ -96,6 +96,8 @@ const handleClickDeleteAllEmojiButton = async () => {
 
   // 削除ボタン押下時処理
   confirmButton.addEventListener('click', async () => {
+    confirmButton.disabled = true;
+
     // ×ボタン/キャンセルボタン押下に画面を更新
     closeButton.addEventListener('click', () => window.location.reload());
     cancelButton.addEventListener('click', () => window.location.reload());
