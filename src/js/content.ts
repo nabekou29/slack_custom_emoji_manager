@@ -139,8 +139,7 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     autoProcessQueue: false,
     previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
-    dictDefaultMessage:
-      'ここに追加したい絵文字をドラッグ＆ドロップ<br><small>"emoji.png"は"emoji"として登録されます</small>'
+    dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict')
   });
 
   const queue = new JabQueue<void, AxiosError>({

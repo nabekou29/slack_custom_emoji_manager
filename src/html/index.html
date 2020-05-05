@@ -1,10 +1,10 @@
 <!-- 一括ダウンロードボタン -->
 <button class="c-button c-button--primary c-button--medium download-all">
-  絵文字を一括でダウンロード
+  ${bulk_download}
 </button>
 <!-- 一括削除ボタン -->
 <button class="c-button c-button--danger c-button--medium delete-all">
-  絵文字を一括で削除
+  ${bulk_remove}
 </button>
 
 <!-- ドロップゾーン -->
@@ -29,8 +29,7 @@
     <div class="warning-mark">
       <svg class="exclamation-mark" viewBox="0 0 512 512">
         <path
-          d="M509.08,448.217L274.676,42.218c-8.299-14.376-29.051-14.376-37.352,0L2.922,448.217   c-8.301,14.376,2.074,32.347,18.674,32.347h468.806C507.003,480.564,517.378,462.594,509.08,448.217z M277.035,423.636   c0,2.68-9.418,4.853-21.033,4.853c-11.619,0-21.037-2.173-21.037-4.853V389.98c0-2.68,9.418-4.853,21.037-4.853   c11.615,0,21.033,2.174,21.033,4.853V423.636z M273.529,345.11c0.008,0.1,0.066,0.195,0.066,0.3c0,4.344-7.879,7.866-17.594,7.866   c-9.721,0-17.596-3.522-17.596-7.866c0-0.102,0.056-0.198,0.066-0.3l-10.936-140.5c0-4.344,12.744-7.866,28.465-7.866   s28.463,3.522,28.463,7.866L273.529,345.11z"
-        />
+          d="M509.08,448.217L274.676,42.218c-8.299-14.376-29.051-14.376-37.352,0L2.922,448.217   c-8.301,14.376,2.074,32.347,18.674,32.347h468.806C507.003,480.564,517.378,462.594,509.08,448.217z M277.035,423.636   c0,2.68-9.418,4.853-21.033,4.853c-11.619,0-21.037-2.173-21.037-4.853V389.98c0-2.68,9.418-4.853,21.037-4.853   c11.615,0,21.033,2.174,21.033,4.853V423.636z M273.529,345.11c0.008,0.1,0.066,0.195,0.066,0.3c0,4.344-7.879,7.866-17.594,7.866   c-9.721,0-17.596-3.522-17.596-7.866c0-0.102,0.056-0.198,0.066-0.3l-10.936-140.5c0-4.344,12.744-7.866,28.465-7.866   s28.463,3.522,28.463,7.866L273.529,345.11z" />
       </svg>
       <span class="cem-tooltip">
         <span class="content"> </span>
@@ -41,30 +40,21 @@
 
 <!-- 削除確認ダイアログ -->
 <div class="ReactModalPortal all-delete-dialog">
-  <div
-    class="ReactModal__Overlay ReactModal__Overlay--after-open c-dialog p-customize_emoji__dialog_overlay"
-  >
+  <div class="ReactModal__Overlay ReactModal__Overlay--after-open c-dialog p-customize_emoji__dialog_overlay">
     <div
       class="ReactModal__Content ReactModal__Content--after-open c-dialog__content p-customize_emoji_list__single_delete"
-      tabindex="-1"
-      role="dialog"
-      aria-label="すべての絵文字を削除しますか？"
-    >
+      tabindex="-1" role="dialog" aria-label="${bulk_remove_confirm}">
       <div class="c-dialog__header">
-        <h1 class="c-dialog__title">すべての絵文字を削除しますか？</h1>
+        <h1 class="c-dialog__title">${bulk_remove_confirm}</h1>
         <button
           class="c-button-unstyled c-icon_button c-icon_button--light c-icon_button--size_medium c-dialog__close close"
-          type="button"
-          aria-label="閉じる"
-        >
+          type="button">
           <i class="c-icon c-icon--times" type="times" aria-hidden="true"></i>
         </button>
       </div>
       <div class="c-dialog__body c-dialog__body--slack_scrollbar">
-        <div>
-          この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。
-        </div>
-        <div>※この処理は時間がかかる場合があります。</div>
+        <div>${bulk_remove_confirm_desc}</div>
+        <div>${bulk_remove_confirm_sub_desc}</div>
         <div class="cem-progress" style="display: none;">
           <span class="cem-progress-contents"></span>
           <div class="cem-progress-bar" role="progressbar" style="width: 0%;"></div>
@@ -73,26 +63,19 @@
           <div class="c-dialog__footer_buttons">
             <button
               class="c-button c-button--outline c-button--medium c-dialog__cancel null--outline null--medium cancel"
-              type="button"
-            >
-              キャンセル
+              type="button">
+              ${bulk_remove_cancel_btn}
             </button>
-            <button
-              class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium confirm"
-              type="button"
-            >
-              削除する
+            <button class="c-button c-button--danger c-button--medium c-dialog__go null--danger null--medium confirm"
+              type="button">
+              ${bulk_remove_confirm_btn}
               <div
-                class="c-infinite_spinner c-button-loading__spinner c-button--loading_spinner--hidden c-infinite_spinner--medium c-infinite_spinner--blue"
-              >
+                class="c-infinite_spinner c-button-loading__spinner c-button--loading_spinner--hidden c-infinite_spinner--medium c-infinite_spinner--blue">
                 <svg class="c-infinite_spinner__spinner" viewBox="0 0 78 78">
                   <circle class="c-infinite_spinner__bg" cx="50%" cy="50%" r="35"></circle>
                   <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle>
                 </svg>
-                <svg
-                  class="c-infinite_spinner__spinner c-infinite_spinner__tail"
-                  viewBox="0 0 78 78"
-                >
+                <svg class="c-infinite_spinner__spinner c-infinite_spinner__tail" viewBox="0 0 78 78">
                   <circle class="c-infinite_spinner__path" cx="50%" cy="50%" r="35"></circle>
                 </svg>
                 <span aria-live="polite" class="offscreen"></span>

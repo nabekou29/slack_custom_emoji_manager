@@ -13,8 +13,13 @@ const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: str
     (await (async () => {
       const res = await fetch(chrome.runtime.getURL(resource), { method: 'GET' });
       const html = await res.text();
+      const parsedHtml = html.replace(/\$\{([a-zA-Z_]+)\}/g, (_, msg) =>
+        chrome.i18n.getMessage(msg)
+      );
+
+      // 文字列をHTML要素に変換
       const div = document.createElement('div');
-      div.innerHTML = html;
+      div.innerHTML = parsedHtml;
       cache[resource] = div;
       return div;
     })());
