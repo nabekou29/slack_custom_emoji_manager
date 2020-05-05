@@ -1,0 +1,19 @@
+{
+  "ext_name": { "message": "Slack Custom Emoji Manager" },
+  "ext_short_name": { "message": "Slack Custom Emoji Manager" },
+  "ext_desc": { "message": "Slackに絵文字の追加、削除、ダウンロードをする機能を追加します" },
+
+  "bulk_download": { "message": "すべての絵文字をダウンロード" },
+  "bulk_remove": { "message": "すべての絵文字を削除" },
+  "bulk_remove_confirm": { "message": "すべての絵文字を削除しますか？" },
+  "bulk_remove_confirm_desc": {
+    "message": "この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。"
+  },
+  "bulk_remove_confirm_sub_desc": { "message": "※この処理は時間がかかる場合があります。" },
+  "bulk_remove_confirm_btn": { "message": "削除する" },
+  "bulk_remove_cancel_btn": { "message": "キャンセル" },
+
+  "dropzone_dict": {
+    "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます</small>'"
+  }
+}

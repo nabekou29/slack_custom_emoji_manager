@@ -1,0 +1,19 @@
+{
+  "ext_name": { "message": "Slack Custom Emoji Manager" },
+  "ext_short_name": { "message": "Slack Custom Emoji Manager" },
+  "ext_desc": { "message": "Add the ability to add, delete, and download emojis to Slack." },
+
+  "bulk_download": { "message": "Download All Emojis" },
+  "bulk_remove": { "message": "Remove All Emojis" },
+  "bulk_remove_confirm": { "message": "Are you sure you want to remove all the emojis?" },
+  "bulk_remove_confirm_desc": {
+    "message": "This will remove <b>all custom emojis</b> for all members of the workspace."
+  },
+  "bulk_remove_confirm_sub_desc": { "message": "* This process can take quite a while." },
+  "bulk_remove_confirm_btn": { "message": "Remove" },
+  "bulk_remove_cancel_btn": { "message": "Cancel" },
+
+  "dropzone_dict": {
+    "message": "Drag and drop some emojis you want to add here.<br><small>\"emoji.png\" will be added as \"emoji\". </small>"
+  }
+}
