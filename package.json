@@ -14,7 +14,7 @@
     "@types/jszip": "^3.1.6",
     "@typescript-eslint/eslint-plugin": "^2.11.0",
     "@typescript-eslint/parser": "^2.11.0",
-    "acorn": "^7.1.0",
+    "acorn": "^7.1.1",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.4.2",
