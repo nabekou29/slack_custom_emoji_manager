@@ -40,7 +40,7 @@ const downloadAllEmoji = async () => {
  * @prams names 名前の一覧
  * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
-const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) => {
+const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknown) => {
   const condition = (e: AxiosError) => e.response?.status === 429;
 
   const jobs = names.map((name, i) => async () => {
@@ -223,8 +223,8 @@ elementReady('.p-customize_emoji_wrapper__empty_words').then(async () => {
   const emptyMessage = await CEMElement.createEmptyMessage();
   const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
     '.p-customize_emoji_wrapper__empty_words'
-  )!;
-  emptyWordsWrapper.before(emptyMessage);
+  );
+  emptyWordsWrapper?.before(emptyMessage);
 });
 
 /* 絵文字の総数を増減する */
