@@ -12,6 +12,24 @@ button.download-all {
   margin-left: $space-size;
 }
 
+.cem-empty-message {
+  padding: 0.5em 1em;
+  margin-bottom: 2em;
+  color: #232323;
+  background: #e9f7fb;
+  border-left: solid 10px #36c5f0;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-image: url(chrome-extension://__MSG_@@extension_id__/icon128.png);
+    background-size: contain;
+    vertical-align: middle;
+  }
+}
+
 /* プログレスバーの大枠 */
 .cem-progress {
   position: relative;

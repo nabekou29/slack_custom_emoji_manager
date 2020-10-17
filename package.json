@@ -1,6 +1,6 @@
 {
   "name": "slack_custom_emoji_manager",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Add the ability to add, delete, and download emojis to Slack.",
   "dependencies": {
     "axios": "^0.19.0",

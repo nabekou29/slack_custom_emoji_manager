@@ -1,5 +1,4 @@
 import JSZip from 'jszip';
-import JabQueue from './job-queue';
 
 /**
  * 処理を指定時間中断します
@@ -19,13 +18,13 @@ export const sleep = (ms: number) => {
  */
 export const formatDate = (date: Date) => {
   // yyyy_MM_dd の形式で日付を取得
-  const formatedCurrentDate = [
+  const formattedCurrentDate = [
     `000${date.getFullYear()}`.slice(-4),
     `0${date.getMonth() + 1}`.slice(-2),
     `0${date.getDate()}`.slice(-2)
   ].join('_');
 
-  return formatedCurrentDate;
+  return formattedCurrentDate;
 };
 
 /**

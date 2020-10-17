@@ -1,11 +1,6 @@
+import * as CEMElement from './element';
+
 import axios, { AxiosError } from 'axios';
-import {
-  createAllDeleteDialog,
-  createDeleteAllEmojiButton,
-  createDownloadAllEmojiButton,
-  createDropzone,
-  createDropzonePreviewTemplate
-} from './element';
 import { deleteEmoji, fetchEmojiImageAndAlias, uploadEmoji, workSpaceName } from './slack';
 import { formatDate, retry, saveZipFile, sleep } from './util';
 
@@ -45,7 +40,7 @@ const downloadAllEmoji = async () => {
  * @prams names 名前の一覧
  * @prams callback 削除が1つ完了する度に呼ばれる関数
  */
-const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) => {
+const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknown) => {
   const condition = (e: AxiosError) => e.response?.status === 429;
 
   const jobs = names.map((name, i) => async () => {
@@ -76,7 +71,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => void) 
  */
 const handleClickDeleteAllEmojiButton = async () => {
   // ダイアログ表示
-  const dialog = await createAllDeleteDialog();
+  const dialog = await CEMElement.createAllDeleteDialog();
 
   document.body.appendChild(dialog);
   dialog.style.display = 'unset';
@@ -133,11 +128,11 @@ const handleClickDeleteAllEmojiButton = async () => {
  */
 const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
   Dropzone.autoDiscover = false;
-  const dropzoneElm = await createDropzone();
+  const dropzoneElm = await CEMElement.createDropzone();
   const dropzone = new Dropzone(dropzoneElm, {
     url: 'mock',
     autoProcessQueue: false,
-    previewTemplate: (await createDropzonePreviewTemplate()).outerHTML,
+    previewTemplate: (await CEMElement.createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
     dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict')
   });
@@ -185,6 +180,9 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
 
 /* 要素の追加イベントの登録を行う */
 elementReady('.p-customize_emoji_wrapper').then(async () => {
+  // 初期メッセージを削除
+  document.querySelector('.cem-empty-message')?.remove();
+
   // 絵文字数
   const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
     '[data-qa=customize_emoji_count]'
@@ -209,8 +207,8 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
 
   // ボタンを作成
-  const downloadAllEmojiButton = await createDownloadAllEmojiButton();
-  const deleteAllEmojiButton = await createDeleteAllEmojiButton();
+  const downloadAllEmojiButton = await CEMElement.createDownloadAllEmojiButton();
+  const deleteAllEmojiButton = await CEMElement.createDeleteAllEmojiButton();
   // ボタンの追加
   buttonsWrapper.appendChild(downloadAllEmojiButton);
   buttonsWrapper.appendChild(deleteAllEmojiButton);
@@ -220,7 +218,16 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
 });
 
-// 絵文字の総数を増減する
+// 絵文字が登録されていない場合の、要素の追加イベントの登録を行う
+elementReady('.p-customize_emoji_wrapper__empty_words').then(async () => {
+  const emptyMessage = await CEMElement.createEmptyMessage();
+  const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
+    '.p-customize_emoji_wrapper__empty_words'
+  );
+  emptyWordsWrapper?.before(emptyMessage);
+});
+
+/* 絵文字の総数を増減する */
 const changeEmojiNumber = (diff: number) => () => {
   const emojiCount = document.querySelector<HTMLHeadingElement>('.cem-emoji-count');
   if (!emojiCount) {
@@ -229,16 +236,19 @@ const changeEmojiNumber = (diff: number) => () => {
   const txt = emojiCount.innerText || '';
   const nextNum = parseInt(txt, 10) + diff;
   emojiCount.innerHTML = txt.replace(/\d+/, nextNum.toString());
+
+  if (nextNum === 0) {
+    window.location.reload();
+  }
 };
 
 /* backgroundとの連携を行う */
 (() => {
   chrome.runtime.sendMessage('cem:init');
   // backgroundからのメッセージに応じて処理を実行
-  chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => {
-    ({
-      'cem:add': changeEmojiNumber(1),
-      'cem:remove': changeEmojiNumber(-1)
-    }[message]?.());
-  });
+  const callbacks = {
+    'cem:add': changeEmojiNumber(1),
+    'cem:remove': changeEmojiNumber(-1)
+  };
+  chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => callbacks[message]());
 })();

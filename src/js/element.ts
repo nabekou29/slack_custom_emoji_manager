@@ -44,3 +44,6 @@ export const createDropzone = () => fetchHtml<HTMLDivElement>('index.html', '#up
 /** ドロップゾーン用プレビュー */
 export const createDropzonePreviewTemplate = () =>
   fetchHtml<HTMLDivElement>('index.html', '.cem-preview-template');
+/** 絵文字未登録時メッセージ */
+export const createEmptyMessage = () =>
+  fetchHtml<HTMLDivElement>('index.html', '.cem-empty-message');
