@@ -2,7 +2,7 @@ import * as CEMElement from './element';
 
 import axios, { AxiosError } from 'axios';
 import { deleteEmoji, fetchEmojiImageAndAlias, uploadEmoji, workSpaceName } from './slack';
-import { formatDate, retry, saveZipFile, sleep } from './util';
+import { formatDate, retry, downloadBlob, sleep } from './util';
 
 import Dropzone from 'dropzone';
 import JSZip from 'jszip';
@@ -32,7 +32,9 @@ const downloadAllEmoji = async () => {
     zip.file('_alias.json', JSON.stringify(aliases, null, 2));
   }
 
-  saveZipFile(zip, `emoji_${workSpaceName}_${formatDate(new Date())}.zip`);
+  const content = await zip.generateAsync({ type: 'blob' });
+
+  downloadBlob(content, `emoji_${workSpaceName}_${formatDate(new Date())}.zip`);
 };
 
 /**
