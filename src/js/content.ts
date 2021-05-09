@@ -60,7 +60,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
     const queue = new JabQueue({
       concurrency: 1,
       onSuccess: (cnt: number) => callback(cnt),
-      onComplete: () => resolve()
+      onComplete: () => resolve(undefined)
     });
     queue.addAll(jobs);
   });

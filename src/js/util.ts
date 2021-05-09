@@ -7,7 +7,7 @@ import JSZip from 'jszip';
 export const sleep = (ms: number) => {
   return new Promise(resolve => {
     setTimeout(() => {
-      resolve();
+      resolve(undefined);
     }, ms);
   });
 };

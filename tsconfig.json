@@ -3,12 +3,13 @@
     "baseUrl": ".",
     "paths": {
       "axios": ["node_modules/axios/index.d.ts"],
-      "element-ready": ["node_modules/element-ready/index.d.ts"]
+      "element-ready": ["node_modules/element-ready/index.d.ts"],
+      "jszip": ["node_modules/jszip/index.d.ts"]
     },
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "module": "es6",
-    "target": "es6",
+    "target": "es2018",
     "allowJs": true,
     "strict": true
   },
