@@ -42,10 +42,13 @@ const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const sveltePreprocess = require('svelte-preprocess');
+
 module.exports = {
   entry: {
     content: path.resolve(__dirname, 'src', 'js', 'content.ts'),
     background: path.resolve(__dirname, 'src', 'js', 'background.ts'),
+    popup: path.resolve(__dirname, 'src', 'js', 'popup.ts'),
     main: path.resolve(__dirname, 'src', 'css', 'main.scss')
   },
   plugins: [
@@ -62,6 +65,11 @@ module.exports = {
       inject: false,
       filename: 'index.html',
       template: path.resolve(__dirname, 'src', 'html', 'index.html')
+    }),
+    new HtmlWebpackPlugin({
+      inject: false,
+      filename: 'popup.html',
+      template: path.resolve(__dirname, 'src', 'html', 'popup.html')
     })
   ],
 
@@ -81,6 +89,15 @@ module.exports = {
       {
         test: /.html$/,
         loader: 'html-loader'
+      },
+      {
+        test: /.(svelte)$/,
+        use: {
+          loader: 'svelte-loader',
+          options: {
+            preprocess: sveltePreprocess()
+          }
+        }
       }
     ]
   },

@@ -1,12 +1,20 @@
-import * as CEMElement from './element';
+import * as element from './element';
+import * as storage from './storage';
 
 import axios, { AxiosError } from 'axios';
-import { deleteEmoji, fetchEmojiImageAndAlias, uploadEmoji, workSpaceName } from './slack';
+import {
+  deleteEmoji,
+  fetchEmojiImageAndAlias,
+  getLocalStorageData,
+  slackBootData,
+  uploadEmoji,
+  workSpaceName
+} from './slack';
 import { formatDate, retry, downloadBlob, sleep } from './util';
 
 import Dropzone from 'dropzone';
 import JSZip from 'jszip';
-import JabQueue from './job-queue';
+import JabQueue from './jobQueue';
 import elementReady from 'element-ready';
 
 /**
@@ -73,7 +81,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
  */
 const handleClickDeleteAllEmojiButton = async () => {
   // ダイアログ表示
-  const dialog = await CEMElement.createAllDeleteDialog();
+  const dialog = await element.createAllDeleteDialog();
 
   document.body.appendChild(dialog);
   dialog.style.display = 'unset';
@@ -130,11 +138,11 @@ const handleClickDeleteAllEmojiButton = async () => {
  */
 const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
   Dropzone.autoDiscover = false;
-  const dropzoneElm = await CEMElement.createDropzone();
+  const dropzoneElm = await element.createDropzone();
   const dropzone = new Dropzone(dropzoneElm, {
     url: 'mock',
     autoProcessQueue: false,
-    previewTemplate: (await CEMElement.createDropzonePreviewTemplate()).outerHTML,
+    previewTemplate: (await element.createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
     dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict')
   });
@@ -182,6 +190,9 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
 
 /* 要素の追加イベントの登録を行う */
 elementReady('.p-customize_emoji_wrapper').then(async () => {
+  const option =
+    (await storage.get('workSpaceOptions'))?.[slackBootData.teamId] || storage.defaultOption;
+
   // 初期メッセージを削除
   document.querySelector('.cem-empty-message')?.remove();
 
@@ -208,21 +219,22 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   const [_, dropzoneElm] = await initDropzone();
   buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
 
-  // ボタンを作成
-  const downloadAllEmojiButton = await CEMElement.createDownloadAllEmojiButton();
-  const deleteAllEmojiButton = await CEMElement.createDeleteAllEmojiButton();
-  // ボタンの追加
+  // 一括ダウンロードボタン
+  const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
   buttonsWrapper.appendChild(downloadAllEmojiButton);
-  buttonsWrapper.appendChild(deleteAllEmojiButton);
-  // 一括ダウンロード処理
   downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
-  // 一括削除処理
-  deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
+
+  // 一括削除ボタン
+  if (option.showDeleteButton) {
+    const deleteAllEmojiButton = await element.createDeleteAllEmojiButton();
+    buttonsWrapper.appendChild(deleteAllEmojiButton);
+    deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
+  }
 });
 
 // 絵文字が登録されていない場合の、要素の追加イベントの登録を行う
 elementReady('.p-customize_emoji_wrapper__empty_words').then(async () => {
-  const emptyMessage = await CEMElement.createEmptyMessage();
+  const emptyMessage = await element.createEmptyMessage();
   const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
     '.p-customize_emoji_wrapper__empty_words'
   );
@@ -253,4 +265,10 @@ const changeEmojiNumber = (diff: number) => () => {
     'cem:remove': changeEmojiNumber(-1)
   };
   chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => callbacks[message]());
+})();
+
+/* ローカルストレージの情報を拡張のストレージに保存 */
+(() => {
+  const data = getLocalStorageData();
+  storage.set('slack', data);
 })();

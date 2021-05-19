@@ -20,5 +20,19 @@
 
   "dropzone_dict": {
     "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます</small>"
-  }
+  },
+
+  "popup_header_title": { "message": "Slack Custom Emoji Manager" },
+  "open_chat": { "message": "チャットを開く" },
+  "customize_emoji": { "message": "emoji をカスタマイズ" },
+  "never_opened_slack__open_slack": {
+    "message": "まずは<a href=\"https://slack.com/signin#/signin\" target=\"_blank\">ここ</a>からSlackワークスペースを開きましょう！"
+  },
+  "never_opened_slack__reload": {
+    "message": "もしすでに開いているなら、リロードしてください。"
+  },
+
+  "option_title": { "message": "設定" },
+  "option_show_delete_button": { "message": "削除ボタンを表示" },
+  "option_reload_to_reflect_option": { "message": "設定を反映するには更新してください。" }
 }

@@ -20,5 +20,19 @@
 
   "dropzone_dict": {
     "message": "Drag and drop some emojis you want to add here.<br><small>\"emoji.png\" will be added as \"emoji\". </small>"
-  }
+  },
+
+  "popup_header_title": { "message": "Slack Custom Emoji Manager" },
+  "open_chat": { "message": "Open chat" },
+  "customize_emoji": { "message": "Customize emoji" },
+  "never_opened_slack__open_slack": {
+    "message": "First, open your Slack workspace from <a href=\"https://slack.com/signin#/signin\" target=\"_blank\">here</a>!"
+  },
+  "never_opened_slack__reload": {
+    "message": "If it is already open, please reload your browser."
+  },
+
+  "option_title": { "message": "Settings" },
+  "option_show_delete_button": { "message": "Show the Remove All button" },
+  "option_reload_to_reflect_option": { "message": "Please reload your browser to apply the settings." }
 }
