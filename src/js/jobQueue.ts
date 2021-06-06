@@ -17,11 +17,11 @@ export default class JabQueue<T, E = Error> {
 
   private readonly concurrency: number;
 
-  private onSuccess?: (result: T) => any;
+  private readonly onSuccess?: (result: T) => any;
 
-  private onFail?: (e: E) => any;
+  private readonly onFail?: (e: E) => any;
 
-  private onComplete?: () => any;
+  private readonly onComplete?: () => any;
 
   /** コンストラクタ */
   constructor(options: JabQueueOptions<T, E>) {

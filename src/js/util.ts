@@ -1,5 +1,3 @@
-import JSZip from 'jszip';
-
 /**
  * 処理を指定時間中断します
  * @param ms 止める時間
@@ -7,7 +5,7 @@ import JSZip from 'jszip';
 export const sleep = (ms: number) => {
   return new Promise(resolve => {
     setTimeout(() => {
-      resolve();
+      resolve(undefined);
     }, ms);
   });
 };
@@ -28,16 +26,14 @@ export const formatDate = (date: Date) => {
 };
 
 /**
- * ZIPオブジェクトを保存
- * @param zip ZIP
+ * Blobオブジェクトを保存
+ * @param blob Blobオブジェクト
  * @param fileName ファイル名
  */
-export const saveZipFile = async (zip: JSZip, fileName: string) => {
-  const content = await zip.generateAsync({ type: 'blob' });
-
+export const downloadBlob = async (blob: Blob, fileName: string) => {
   const downLoadLink = document.createElement('a');
   downLoadLink.download = fileName;
-  downLoadLink.href = URL.createObjectURL(content);
+  downLoadLink.href = URL.createObjectURL(blob);
   downLoadLink.dataset.downloadurl = ['blob', downLoadLink.download, downLoadLink.href].join(':');
   downLoadLink.click();
 };

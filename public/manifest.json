@@ -3,7 +3,7 @@
   "name": "__MSG_ext_name__",
   "short_name": "__MSG_ext_short_name__",
   "description": "__MSG_ext_desc__",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "default_locale": "en",
   "icons": {
     "16": "icon16.png",
@@ -13,18 +13,23 @@
   "browser_action": {
     "default_icon": {
       "19": "icon24.png"
-    }
+    },
+    "default_title":"Slack Custom Emoji Manager",
+    "default_popup":"popup.html"
   },
   "content_scripts": [
     {
       "js": ["content.js"],
       "css": ["main.css"],
-      "matches": ["*://*.slack.com/*/emoji*"]
+      "matches": ["*://*.slack.com/*"]
     }
   ],
   "background": {
     "scripts": ["background.js"]
   },
   "web_accessible_resources": ["index.html", "icon128.png"],
-  "permissions": ["webRequest", "webRequestBlocking", "*://emoji.slack-edge.com/", "*://*.slack.com/api/", "*://emoji.slack-edge.com/*"]
+  "permissions": [
+    "storage", "webRequest", "webRequestBlocking",
+    "*://emoji.slack-edge.com/", "*://*.slack.com/api/", "*://emoji.slack-edge.com/*"
+  ]
 }

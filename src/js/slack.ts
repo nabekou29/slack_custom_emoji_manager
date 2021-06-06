@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import axios from 'axios';
+import { SlackLocalStorageData } from './types/slackLocalStorage';
 
 export const BASE_URL = 'https://slack.com/api';
 
@@ -17,6 +18,7 @@ export const defaultEmojis = [
   'squirrel',
   'thumbsup_all'
 ];
+
 /** emoji.listのレスポンスに標準で含まれるエイリアス */
 export const defaultAliases = ['black_square', 'white_square', 'shipit'];
 
@@ -41,10 +43,11 @@ export interface WebAPICallResult {
   [key: string]: unknown;
 }
 
-/** API情報 */
-export const slackApiData = (() => {
+/** Slackの情報 */
+export const slackBootData = (() => {
   let apiToken = '';
   let versionUid = '';
+  let teamId = '';
 
   // scriptをリストにする
   const scriptList: HTMLElement[] = [];
@@ -55,22 +58,24 @@ export const slackApiData = (() => {
   // 埋め込まれているscriptからTokenなどを取得
   scriptList.some(script => {
     const isBootDataScript = /var\sboot_data\s=\s\{/.test(script.innerText);
-
     if (!isBootDataScript) {
       return false;
     }
 
     const apiTokenResult = /"?api_token"?:\s*"(.+?)"/g.exec(script.innerText);
     const versionUidResult = /"?version_uid"?:\s*"(.+?)"/g.exec(script.innerText);
+    const teamIdResult = /"?team_id"?:\s*"(.+?)"/g.exec(script.innerText);
 
     apiToken = apiTokenResult?.[1] ?? '';
     versionUid = versionUidResult?.[1] ?? '';
+    teamId = teamIdResult?.[1] ?? '';
     return true;
   });
 
   return {
     apiToken,
-    versionUid
+    versionUid,
+    teamId
   };
 })();
 
@@ -83,26 +88,24 @@ export const fetchEmojiImageAndAlias = async (): Promise<[
   { [k: string]: string }
 ]> => {
   const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
-    params: { token: slackApiData.apiToken }
+    params: { token: slackBootData.apiToken }
   });
 
   // エイリアスかのチェック
   const isAlias = (url: string) => url.match(/alias:.*/);
 
   // 絵文字
-  const emojiMap = Object.entries(res.data.emoji)
-    .filter(([name, url]: [string, string]) => !isAlias(url) && !defaultEmojis.includes(name))
-    .reduce<{ [k: string]: string }>((emojis, [name, url]) => ({ [name]: url, ...emojis }), {});
+  const emojiMap = Object.fromEntries(
+    Object.entries(res.data.emoji).filter(
+      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name)
+    )
+  );
   // エイリアス
-  const aliasMap = Object.entries(res.data.emoji)
-    .filter(([name, url]: [string, string]) => isAlias(url) && !defaultAliases.includes(name))
-    .reduce<{ [k: string]: string }>(
-      (aliases, [name, alias]) => ({
-        [name]: alias.match(/alias:(.*)/)?.[1] ?? '',
-        ...aliases
-      }),
-      {}
-    );
+  const aliasMap = Object.fromEntries(
+    Object.entries(res.data.emoji)
+      .filter(([name, url]) => isAlias(url) && !defaultAliases.includes(name))
+      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? ''])
+  );
 
   return [emojiMap, aliasMap];
 };
@@ -118,7 +121,7 @@ export const uploadEmoji = (name: string, fileName: string, image: Blob) => {
   form.append('mode', 'data');
   form.append('name', name);
   form.append('image', image, fileName);
-  form.append('token', slackApiData.apiToken);
+  form.append('token', slackBootData.apiToken);
 
   return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
 };
@@ -133,7 +136,7 @@ export const uploadAlias = (target: string, alias: string) => {
   form.append('mode', 'alias');
   form.append('name', alias);
   form.append('alias_for', target);
-  form.append('token', slackApiData.apiToken);
+  form.append('token', slackBootData.apiToken);
 
   return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
 };
@@ -146,7 +149,19 @@ export const uploadAlias = (target: string, alias: string) => {
 export const deleteEmoji = (name: string) => {
   const form = new FormData();
   form.append('name', name);
-  form.append('token', slackApiData.apiToken);
+  form.append('token', slackBootData.apiToken);
 
   return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, form);
+};
+
+/**
+ * Slackで保存されているLocalStorageのデータを取得します
+ * @returns LocalStorageのデータ
+ */
+export const getLocalStorageData = () => {
+  const data = localStorage.getItem('localConfig_v2');
+  if (!data) {
+    return undefined;
+  }
+  return JSON.parse(data) as SlackLocalStorageData;
 };

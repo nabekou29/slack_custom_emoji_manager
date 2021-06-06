@@ -2,15 +2,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "axios": ["node_modules/axios/index.d.ts"],
-      "element-ready": ["node_modules/element-ready/index.d.ts"]
+      "svelte-fa/src/fa.svelte": ["node_modules/svelte-fa/src/index.d.ts"]
     },
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
+    "lib": ["ES2020", "DOM"],
     "module": "es6",
     "target": "es6",
     "allowJs": true,
-    "strict": true
+    "strict": true,
+    "types": ["chrome", "svelte"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
