@@ -58,7 +58,6 @@ export const slackBootData = (() => {
   // 埋め込まれているscriptからTokenなどを取得
   scriptList.some(script => {
     const isBootDataScript = /var\sboot_data\s=\s\{/.test(script.innerText);
-
     if (!isBootDataScript) {
       return false;
     }
@@ -96,19 +95,17 @@ export const fetchEmojiImageAndAlias = async (): Promise<[
   const isAlias = (url: string) => url.match(/alias:.*/);
 
   // 絵文字
-  const emojiMap = Object.entries(res.data.emoji)
-    .filter(([name, url]: [string, string]) => !isAlias(url) && !defaultEmojis.includes(name))
-    .reduce<{ [k: string]: string }>((emojis, [name, url]) => ({ [name]: url, ...emojis }), {});
+  const emojiMap = Object.fromEntries(
+    Object.entries(res.data.emoji).filter(
+      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name)
+    )
+  );
   // エイリアス
-  const aliasMap = Object.entries(res.data.emoji)
-    .filter(([name, url]: [string, string]) => isAlias(url) && !defaultAliases.includes(name))
-    .reduce<{ [k: string]: string }>(
-      (aliases, [name, alias]) => ({
-        [name]: alias.match(/alias:(.*)/)?.[1] ?? '',
-        ...aliases
-      }),
-      {}
-    );
+  const aliasMap = Object.fromEntries(
+    Object.entries(res.data.emoji)
+      .filter(([name, url]) => isAlias(url) && !defaultAliases.includes(name))
+      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? ''])
+  );
 
   return [emojiMap, aliasMap];
 };

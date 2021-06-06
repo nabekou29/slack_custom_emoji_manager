@@ -6,6 +6,7 @@
     },
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "lib": ["ES2020", "DOM"],
     "module": "es6",
     "target": "es6",
     "allowJs": true,
