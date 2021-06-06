@@ -29,7 +29,7 @@
     "message": "まずは<a href=\"https://slack.com/signin#/signin\" target=\"_blank\">ここ</a>からSlackワークスペースを開きましょう！"
   },
   "never_opened_slack__reload": {
-    "message": "もしすでに開いているなら、リロードしてください。"
+    "message": "もしすでに開いているなら、ページをリロードしてください。"
   },
 
   "option_title": { "message": "設定" },
