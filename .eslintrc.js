@@ -1,18 +1,18 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true
+    es6: true,
   },
   extends: ['airbnb-base', 'plugin:prettier/recommended'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
-    chrome: 'readonly'
+    chrome: 'readonly',
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2018,
-    sourceType: 'module'
+    sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
@@ -25,6 +25,7 @@ module.exports = {
     'no-unused-expressions': 'off',
     'no-await-in-loop': 'off',
     'no-restricted-syntax': 'off',
-    quotes: ['warn', 'single']
-  }
+    'no-use-before-define': 'off',
+    quotes: ['warn', 'single'],
+  },
 };

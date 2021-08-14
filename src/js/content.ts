@@ -8,7 +8,7 @@ import {
   getLocalStorageData,
   slackBootData,
   uploadEmoji,
-  workSpaceName
+  workSpaceName,
 } from './slack';
 import { formatDate, retry, downloadBlob, sleep } from './util';
 
@@ -28,7 +28,7 @@ const downloadAllEmoji = async () => {
   await Promise.all(
     Object.entries(emojis).map(async ([name, url]) => {
       const res = await axios.get<ArrayBuffer>(url, {
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
       });
       const extension = url.match(/.*\.(\w+)/)?.[1];
       zip.file(`${name}.${extension}`, res.data);
@@ -58,7 +58,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
     await retry(() => deleteEmoji(name), {
       condition,
       num: 3,
-      sleep: 3000
+      sleep: 3000,
     })();
     // 負荷軽減
     await sleep(100);
@@ -66,11 +66,11 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
   });
   // 削除処理を実行
   // 全ての削除が完了(onComplete)したタイミングでresolveする
-  await new Promise(resolve => {
+  await new Promise((resolve) => {
     const queue = new JabQueue({
       concurrency: 1,
       onSuccess: (cnt: number) => callback(cnt),
-      onComplete: () => resolve(undefined)
+      onComplete: () => resolve(undefined),
     });
     queue.addAll(jobs);
   });
@@ -90,7 +90,7 @@ const handleClickDeleteAllEmojiButton = async () => {
   const [closeButton, cancelButton, confirmButton] = [
     dialog.querySelector<HTMLButtonElement>('button.close')!,
     dialog.querySelector<HTMLButtonElement>('button.cancel')!,
-    dialog.querySelector<HTMLButtonElement>('button.confirm')!
+    dialog.querySelector<HTMLButtonElement>('button.confirm')!,
   ];
   // プログレスバーを取得
   const progressWrapper = dialog.querySelector<HTMLDivElement>('.cem-progress')!;
@@ -119,7 +119,7 @@ const handleClickDeleteAllEmojiButton = async () => {
     progressWrapper.style.display = 'block';
     const [progressBar, progressContent] = [
       progressWrapper.querySelector<HTMLDivElement>('.cem-progress-bar')!,
-      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-contents')!
+      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-contents')!,
     ];
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
@@ -144,15 +144,15 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     autoProcessQueue: false,
     previewTemplate: (await element.createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
-    dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict')
+    dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict'),
   });
 
   const queue = new JabQueue<void, AxiosError>({
-    concurrency: 1
+    concurrency: 1,
   });
 
   // 絵文字登録処理
-  dropzone.on('addedfile', async file => {
+  dropzone.on('addedfile', async (file) => {
     const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
     const imageWrapper = file.previewElement.querySelector('.cem-dz-image')!;
     const condition = (e: AxiosError) => e.response?.status === 429;
@@ -162,17 +162,17 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
       await retry(() => uploadEmoji(name, file.name, file), {
         condition,
         num: 3,
-        sleep: 3000
+        sleep: 3000,
       })()
         // 成功時にローディングアイコンを除去
-        .then(res => {
+        .then((res) => {
           if (res.data.error) {
             throw new Error(res.data.error);
           }
           imageWrapper.classList.remove('loading');
         })
         // エラー時にエラーアイコンとツールチップを表示
-        .catch(e => {
+        .catch((e) => {
           if (!(e instanceof Error)) return;
           imageWrapper.classList.replace('loading', 'warning');
           const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
@@ -262,7 +262,7 @@ const changeEmojiNumber = (diff: number) => () => {
   // backgroundからのメッセージに応じて処理を実行
   const callbacks = {
     'cem:add': changeEmojiNumber(1),
-    'cem:remove': changeEmojiNumber(-1)
+    'cem:remove': changeEmojiNumber(-1),
   };
   chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => callbacks[message]());
 })();

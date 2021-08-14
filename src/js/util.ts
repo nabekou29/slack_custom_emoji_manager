@@ -3,7 +3,7 @@
  * @param ms 止める時間
  */
 export const sleep = (ms: number) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(undefined);
     }, ms);
@@ -19,7 +19,7 @@ export const formatDate = (date: Date) => {
   const formattedCurrentDate = [
     `000${date.getFullYear()}`.slice(-4),
     `0${date.getMonth() + 1}`.slice(-2),
-    `0${date.getDate()}`.slice(-2)
+    `0${date.getDate()}`.slice(-2),
   ].join('_');
 
   return formattedCurrentDate;
@@ -50,7 +50,7 @@ export const retry = <T, E>(
   {
     condition = () => true,
     num,
-    sleep: sleepTime
+    sleep: sleepTime,
   }: {
     condition: (e: E) => boolean;
     num: number;

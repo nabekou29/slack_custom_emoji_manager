@@ -7,7 +7,10 @@
 
   import * as storage from '../storage';
   import Option from './Option.svelte';
-  import { SlackLocalStorageData, SlackLocalStorageDataTeam } from '../types/slackLocalStorage';
+  import type {
+    SlackLocalStorageData,
+    SlackLocalStorageDataTeam,
+  } from '../types/slackLocalStorage';
 
   const msg = chrome.i18n.getMessage;
 
@@ -18,7 +21,7 @@
   onMount(async () => {
     slackData = await storage.get('slack');
     if (slackData) {
-      handleChangeCurrentTeamId(slackData.lastActiveTeamId);
+      await handleChangeCurrentTeamId(slackData.lastActiveTeamId);
     }
   });
 
@@ -26,7 +29,6 @@
     // 選択中のチームの情報を更新
     currentSlackTeam = slackData?.teams[teamId];
   };
-
 </script>
 
 <div>
@@ -71,7 +73,7 @@
             <Fa icon={faSmileWink} size="lg" />
 
             {msg('customize_emoji')}
-            <a href={currentSlackTeam.url + '/customize/emoji'} target="_blank">
+            <a href={`${currentSlackTeam.url}/customize/emoji`} target="_blank">
               <Fa icon={faExternalLinkAlt} />
             </a>
           </li>
@@ -123,7 +125,7 @@
   .header {
     position: relative;
     background-color: #ffffff;
-    box-shadow: 0px 8px 8px -8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 8px -8px rgba(0, 0, 0, 0.5);
 
     &__wrapper {
       padding: 0.8rem 4px;
@@ -147,14 +149,12 @@
 
     &__select {
       width: 100%;
-      padding-right: 1em;
       cursor: pointer;
       text-indent: 0.01px;
       text-overflow: ellipsis;
       border: none;
       outline: none;
-      background: transparent;
-      background-image: none;
+      background: transparent none;
       box-shadow: none;
       -webkit-appearance: none;
       appearance: none;
@@ -167,14 +167,14 @@
       display: inline;
       pointer-events: none;
       padding: 8px 16px;
-      top: 0px;
-      right: 0px;
+      top: 0;
+      right: 0;
     }
   }
 
   .action-list {
     font-size: $font-size-middle;
-    margin: 0px;
+    margin: 0;
     padding: 0.5em 1em 0.5em 0.5em;
     position: relative;
 
@@ -196,5 +196,4 @@
       font-size: $font-size-small;
     }
   }
-
 </style>

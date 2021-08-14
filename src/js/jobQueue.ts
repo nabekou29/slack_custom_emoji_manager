@@ -62,8 +62,8 @@ export default class JabQueue<T, E = Error> {
     const job = this.dequeue();
     this.runningJobs += 1;
     job?.()
-      .then(res => this.onSuccess?.(res))
-      .catch(e => this.onFail?.(e))
+      .then((res) => this.onSuccess?.(res))
+      .catch((e) => this.onFail?.(e))
       .finally(() => {
         this.runningJobs -= 1;
         this.tryNext();

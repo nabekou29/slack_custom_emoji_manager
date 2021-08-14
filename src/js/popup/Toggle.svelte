@@ -7,7 +7,6 @@
     checked = !checked;
   };
   const dispatch = createEventDispatcher();
-
 </script>
 
 <span>
@@ -81,5 +80,4 @@
       }
     }
   }
-
 </style>

@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import axios from 'axios';
-import { SlackLocalStorageData } from './types/slackLocalStorage';
+import type { SlackLocalStorageData } from './types/slackLocalStorage';
 
 export const BASE_URL = 'https://slack.com/api';
 
@@ -16,7 +16,7 @@ export const defaultEmojis = [
   'slack_call',
   'slack',
   'squirrel',
-  'thumbsup_all'
+  'thumbsup_all',
 ];
 
 /** emoji.listのレスポンスに標準で含まれるエイリアス */
@@ -53,10 +53,10 @@ export const slackBootData = (() => {
   const scriptList: HTMLElement[] = [];
   document
     .querySelectorAll<HTMLElement>('script[type="text/javascript"]')
-    .forEach(script => scriptList.push(script));
+    .forEach((script) => scriptList.push(script));
 
   // 埋め込まれているscriptからTokenなどを取得
-  scriptList.some(script => {
+  scriptList.some((script) => {
     const isBootDataScript = /var\sboot_data\s=\s\{/.test(script.innerText);
     if (!isBootDataScript) {
       return false;
@@ -75,7 +75,7 @@ export const slackBootData = (() => {
   return {
     apiToken,
     versionUid,
-    teamId
+    teamId,
   };
 })();
 
@@ -83,12 +83,11 @@ export const slackBootData = (() => {
  * 絵文字とエイリアスの一覧を取得
  * @return [絵文字, エイリアス]
  */
-export const fetchEmojiImageAndAlias = async (): Promise<[
-  { [k: string]: string },
-  { [k: string]: string }
-]> => {
+export const fetchEmojiImageAndAlias = async (): Promise<
+  [{ [k: string]: string }, { [k: string]: string }]
+> => {
   const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
-    params: { token: slackBootData.apiToken }
+    params: { token: slackBootData.apiToken },
   });
 
   // エイリアスかのチェック
