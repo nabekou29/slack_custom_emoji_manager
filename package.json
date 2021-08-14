@@ -52,7 +52,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "rm -rf dist && webpack --config webpack.dev.js --watch",
     "build": "rm -rf dist && webpack --config webpack.dev.js",
-    "build:prod": "rm -rf dist && webpack --config webpack.prod.js"
+    "build:prod": "rm -rf dist && webpack --config webpack.prod.js",
+    "analyze": "rm -rf dist && webpack --env analyze --config webpack.prod.js "
   },
   "repository": {
     "type": "git",
