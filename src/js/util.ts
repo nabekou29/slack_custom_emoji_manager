@@ -61,13 +61,13 @@ export const retry = <T, E>(
     let res: T;
     for (const i of [...Array(num + 1).keys()]) {
       try {
-        // 削除
+        // 実行
         res = await task();
         break;
       } catch (e) {
         if (i !== num && condition(e)) {
-          // 再度投げる
           await sleep(sleepTime);
+          // 再度実行
           // eslint-disable-next-line no-continue
           continue;
         }
