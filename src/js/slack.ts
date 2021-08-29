@@ -2,7 +2,7 @@
 import axios from 'axios';
 import type { SlackLocalStorageData } from './types/slackLocalStorage';
 
-export const BASE_URL = 'https://slack.com/api';
+export const BASE_URL = '/api';
 
 /** emoji.listのレスポンスに標準で含まれる絵文字 */
 export const defaultEmojis = [
@@ -80,6 +80,18 @@ export const slackBootData = (() => {
 })();
 
 /**
+ * APIに使用するx_idを生成
+ */
+export const generateXId = (): string =>
+  `${slackBootData.versionUid.slice(0, 8)}-${Date.now() / 1000}`;
+
+const post = async <T>({ url, data }: { url: string; data: FormData }) => {
+  return axios.post<T>(url, data, {
+    params: { _x_id: generateXId() },
+  });
+};
+
+/**
  * 絵文字とエイリアスの一覧を取得
  * @return [絵文字, エイリアス]
  */
@@ -122,7 +134,10 @@ export const uploadEmoji = (name: string, fileName: string, image: Blob) => {
   form.append('image', image, fileName);
   form.append('token', slackBootData.apiToken);
 
-  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
+  return post<WebAPICallResult>({
+    url: `${BASE_URL}/emoji.add`,
+    data: form,
+  });
 };
 
 /**
@@ -137,7 +152,10 @@ export const uploadAlias = (target: string, alias: string) => {
   form.append('alias_for', target);
   form.append('token', slackBootData.apiToken);
 
-  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.add`, form);
+  return post<WebAPICallResult>({
+    url: `${BASE_URL}/emoji.add`,
+    data: form,
+  });
 };
 
 /**
@@ -150,7 +168,10 @@ export const deleteEmoji = (name: string) => {
   form.append('name', name);
   form.append('token', slackBootData.apiToken);
 
-  return axios.post<WebAPICallResult>(`${BASE_URL}/emoji.remove`, form);
+  return post<WebAPICallResult>({
+    url: `${BASE_URL}/emoji.remove`,
+    data: form,
+  });
 };
 
 /**
