@@ -40,10 +40,10 @@ export const downloadBlob = async (blob: Blob, fileName: string) => {
 
 /**
  * タスクが失敗した際に再度タスクを実行する
- * @param tasks タスク
- * @param options.condition 再度処理を試みる条件。未指定時は必ず再度処理を試みる
- * @param options.num 再度処理を試みる回数
- * @param options.sleep 再度処理を試みる間隔
+ * @param task タスク
+ * @param condition 再度処理を試みる条件。未指定時は必ず再度処理を試みる
+ * @param num 再度処理を試みる回数
+ * @param sleep 再度処理を試みる間隔
  */
 export const retry = <T, E>(
   task: () => Promise<T>,
@@ -52,12 +52,12 @@ export const retry = <T, E>(
     num,
     sleep: sleepTime,
   }: {
-    condition: (e: E) => boolean;
+    condition?: (e: E) => boolean;
     num: number;
     sleep: number;
   }
-): (() => Promise<T>) => {
-  return async () => {
+): Promise<T> => {
+  return (async () => {
     let res: T;
     for (const i of [...Array(num + 1).keys()]) {
       try {
@@ -77,5 +77,5 @@ export const retry = <T, E>(
     // 成功しなかった場合には例外が投げられるため、
     // ここに到達した際には res には必ず値が入っている
     return res!;
-  };
+  })();
 };

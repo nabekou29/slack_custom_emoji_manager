@@ -73,7 +73,8 @@
             <Fa icon={faSmileWink} size="lg" />
 
             {msg('customize_emoji')}
-            <a href={`${currentSlackTeam.url}/customize/emoji`} target="_blank">
+            <!-- urlは末尾に'/'が含まれる -->
+            <a href={`${currentSlackTeam.url}customize/emoji`} target="_blank">
               <Fa icon={faExternalLinkAlt} />
             </a>
           </li>

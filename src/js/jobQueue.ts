@@ -24,25 +24,18 @@ export default class JabQueue<T, E = Error> {
   private readonly onComplete?: () => any;
 
   /** コンストラクタ */
-  constructor(options: JabQueueOptions<T, E>) {
+  constructor(jobs: Job<T>[], options: JabQueueOptions<T, E>) {
     this.concurrency = options.concurrency ?? Infinity;
     this.onSuccess = options.onSuccess;
     this.onFail = options.onFail;
     this.onComplete = options.onComplete;
+    this.add(...jobs);
   }
 
   /** ジョブを追加 */
-  add(job: Job<T>) {
-    this.queue.push(job);
-    if (this.runningJobs < this.concurrency) {
-      this.process();
-    }
-  }
-
-  /** ジョブを追加 */
-  addAll(jobs: Job<T>[]) {
-    this.queue = [...this.queue, ...jobs];
-    while (this.runningJobs < this.concurrency) {
+  add(...jobs: Job<T>[]) {
+    this.queue.push(...jobs);
+    while (this.length && this.runningJobs < this.concurrency) {
       this.process();
     }
   }
