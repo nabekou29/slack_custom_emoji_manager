@@ -8,7 +8,7 @@ import {
   getLocalStorageData,
   slackBootData,
   uploadEmoji,
-  workSpaceName
+  workSpaceName,
 } from './slack';
 import { formatDate, retry, downloadBlob, sleep } from './util';
 
@@ -25,15 +25,20 @@ const downloadAllEmoji = async () => {
   const zip = new JSZip();
 
   // 絵文字をダウンロード・zip化
-  await Promise.all(
-    Object.entries(emojis).map(async ([name, url]) => {
-      const res = await axios.get<ArrayBuffer>(url, {
-        responseType: 'arraybuffer'
-      });
-      const extension = url.match(/.*\.(\w+)/)?.[1];
-      zip.file(`${name}.${extension}`, res.data);
-    })
-  );
+  const jobs = Object.entries(emojis).map(([name, url]) => async () => {
+    // 削除処理(3回まで失敗を許容する)
+    await retry(
+      async () => {
+        const res = await axios.get<ArrayBuffer>(url, { responseType: 'arraybuffer' });
+        const extension = url.match(/.*\.(\w+)/)?.[1];
+        zip.file(`${name}.${extension}`, res.data);
+      },
+      { num: 3, sleep: 3000 }
+    );
+    // 負荷軽減
+    await sleep(100);
+  });
+  await new Promise((resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: resolve }));
 
   // エイリアスをJSONファイルとしてzip化
   if (Object.keys(aliases).length) {
@@ -41,8 +46,7 @@ const downloadAllEmoji = async () => {
   }
 
   const content = await zip.generateAsync({ type: 'blob' });
-
-  downloadBlob(content, `emoji_${workSpaceName}_${formatDate(new Date())}.zip`);
+  await downloadBlob(content, `emoji_${workSpaceName}_${formatDate(new Date())}.zip`);
 };
 
 /**
@@ -55,25 +59,21 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
 
   const jobs = names.map((name, i) => async () => {
     // 削除処理(3回まで失敗を許容する)
-    await retry(() => deleteEmoji(name), {
-      condition,
-      num: 3,
-      sleep: 3000
-    })();
+    await retry(() => deleteEmoji(name), { condition, num: 3, sleep: 3000 });
     // 負荷軽減
     await sleep(100);
     return i + 1;
   });
   // 削除処理を実行
   // 全ての削除が完了(onComplete)したタイミングでresolveする
-  await new Promise(resolve => {
-    const queue = new JabQueue({
-      concurrency: 1,
-      onSuccess: (cnt: number) => callback(cnt),
-      onComplete: () => resolve(undefined)
-    });
-    queue.addAll(jobs);
-  });
+  await new Promise(
+    (resolve) =>
+      new JabQueue(jobs, {
+        concurrency: 1,
+        onSuccess: (cnt) => callback(cnt),
+        onComplete: resolve,
+      })
+  );
 };
 
 /**
@@ -90,7 +90,7 @@ const handleClickDeleteAllEmojiButton = async () => {
   const [closeButton, cancelButton, confirmButton] = [
     dialog.querySelector<HTMLButtonElement>('button.close')!,
     dialog.querySelector<HTMLButtonElement>('button.cancel')!,
-    dialog.querySelector<HTMLButtonElement>('button.confirm')!
+    dialog.querySelector<HTMLButtonElement>('button.confirm')!,
   ];
   // プログレスバーを取得
   const progressWrapper = dialog.querySelector<HTMLDivElement>('.cem-progress')!;
@@ -119,7 +119,7 @@ const handleClickDeleteAllEmojiButton = async () => {
     progressWrapper.style.display = 'block';
     const [progressBar, progressContent] = [
       progressWrapper.querySelector<HTMLDivElement>('.cem-progress-bar')!,
-      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-contents')!
+      progressWrapper.querySelector<HTMLDivElement>('.cem-progress-contents')!,
     ];
     const updateProgress = (cnt: number) => {
       progressBar.style.width = `${(cnt / names.length) * 100}%`;
@@ -144,15 +144,13 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
     autoProcessQueue: false,
     previewTemplate: (await element.createDropzonePreviewTemplate()).outerHTML,
     acceptedFiles: 'image/*',
-    dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict')
+    dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict'),
   });
 
-  const queue = new JabQueue<void, AxiosError>({
-    concurrency: 1
-  });
+  const queue = new JabQueue<void, AxiosError>([], { concurrency: 1 });
 
   // 絵文字登録処理
-  dropzone.on('addedfile', async file => {
+  dropzone.on('addedfile', async (file) => {
     const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
     const imageWrapper = file.previewElement.querySelector('.cem-dz-image')!;
     const condition = (e: AxiosError) => e.response?.status === 429;
@@ -162,17 +160,17 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
       await retry(() => uploadEmoji(name, file.name, file), {
         condition,
         num: 3,
-        sleep: 3000
-      })()
+        sleep: 3000,
+      })
         // 成功時にローディングアイコンを除去
-        .then(res => {
+        .then((res) => {
           if (res.data.error) {
             throw new Error(res.data.error);
           }
           imageWrapper.classList.remove('loading');
         })
         // エラー時にエラーアイコンとツールチップを表示
-        .catch(e => {
+        .catch((e) => {
           if (!(e instanceof Error)) return;
           imageWrapper.classList.replace('loading', 'warning');
           const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
@@ -222,7 +220,22 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
   // 一括ダウンロードボタン
   const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
   buttonsWrapper.appendChild(downloadAllEmojiButton);
-  downloadAllEmojiButton.addEventListener('click', downloadAllEmoji);
+  downloadAllEmojiButton.addEventListener('click', async () => {
+    const spinner = downloadAllEmojiButton.querySelector('.c-infinite_spinner');
+    // スピナー表示
+    downloadAllEmojiButton.disabled = true;
+    spinner?.classList.remove('c-button--loading_spinner--hidden');
+    try {
+      await downloadAllEmoji();
+    } catch (e) {
+      // eslint-disable-next-line no-alert
+      alert(e);
+    } finally {
+      // スピナー非表示
+      downloadAllEmojiButton.disabled = false;
+      spinner?.classList.add('c-button--loading_spinner--hidden');
+    }
+  });
 
   // 一括削除ボタン
   if (option.showDeleteButton) {
@@ -262,13 +275,13 @@ const changeEmojiNumber = (diff: number) => () => {
   // backgroundからのメッセージに応じて処理を実行
   const callbacks = {
     'cem:add': changeEmojiNumber(1),
-    'cem:remove': changeEmojiNumber(-1)
+    'cem:remove': changeEmojiNumber(-1),
   };
   chrome.runtime.onMessage.addListener((message: 'cem:add' | 'cem:remove') => callbacks[message]());
 })();
 
 /* ローカルストレージの情報を拡張のストレージに保存 */
-(() => {
+(async () => {
   const data = getLocalStorageData();
-  storage.set('slack', data);
+  await storage.set('slack', data);
 })();

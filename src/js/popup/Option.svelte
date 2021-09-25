@@ -25,7 +25,7 @@
       const workSpaceOptions = (await storage.get('workSpaceOptions')) || {};
       storage.set('workSpaceOptions', {
         ...workSpaceOptions,
-        [slackTeamId]: option
+        [slackTeamId]: option,
       });
     })();
   }
@@ -34,7 +34,6 @@
   const touchOption = () => {
     touchedOption = true;
   };
-
 </script>
 
 <div class="option">
@@ -67,5 +66,4 @@
       font-size: $font-size-small;
     }
   }
-
 </style>

@@ -32,10 +32,10 @@ const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: str
 
 /** 一括ダウンロードボタン */
 export const createDownloadAllEmojiButton = () =>
-  fetchHtml<HTMLDivElement>('index.html', '.download-all');
+  fetchHtml<HTMLButtonElement>('index.html', '.download-all');
 /** 一括削除ボタン */
 export const createDeleteAllEmojiButton = () =>
-  fetchHtml<HTMLDivElement>('index.html', '.delete-all');
+  fetchHtml<HTMLButtonElement>('index.html', '.delete-all');
 /** 確認ダイアログ */
 export const createAllDeleteDialog = () =>
   fetchHtml<HTMLDivElement>('index.html', '.all-delete-dialog');

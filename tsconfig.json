@@ -1,11 +1,10 @@
 {
+  "extends": "@tsconfig/svelte",
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": {
-      "svelte-fa/src/fa.svelte": ["node_modules/svelte-fa/src/index.d.ts"]
-    },
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "isolatedModules": false,
     "lib": ["ES2020", "DOM"],
     "module": "es6",
     "target": "es6",

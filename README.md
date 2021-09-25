@@ -8,7 +8,7 @@ Slack のカスタム絵文字管理画面に以下の機能を追加します�
 
 ## インストール
 
-https://chrome.google.com/webstore/detail/slack-custom-emoji-manage/cgipifjpcbhdppbjjphmgkmmgbeaggpc
+[Chrome ウェブストア](https://chrome.google.com/webstore/detail/slack-custom-emoji-manage/cgipifjpcbhdppbjjphmgkmmgbeaggpc)
 
 ## ビルド
 

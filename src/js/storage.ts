@@ -1,4 +1,4 @@
-import { SlackLocalStorageData } from './types/slackLocalStorage';
+import type { SlackLocalStorageData } from './types/slackLocalStorage';
 
 /** 拡張機能のストレージ */
 type CStorage = {
@@ -15,7 +15,7 @@ export type Option = {
 
 /** 拡張機能の設定のデフォルト値 */
 export const defaultOption = {
-  showDeleteButton: true
+  showDeleteButton: true,
 } as const;
 
 /**
@@ -24,8 +24,8 @@ export const defaultOption = {
  * @returns 値
  */
 export const get = <K extends keyof CStorage>(key: K): Promise<CStorage[K] | undefined> => {
-  return new Promise(resolve => {
-    chrome.storage.local.get(key, items => {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(key, (items) => {
       if (!items[key]) {
         resolve(undefined);
       }
@@ -43,7 +43,7 @@ export const set = <K extends keyof CStorage>(
   key: K,
   value: CStorage[K] | undefined
 ): Promise<void> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     chrome.storage.local.set({ [key]: value }, resolve);
   });
 };
