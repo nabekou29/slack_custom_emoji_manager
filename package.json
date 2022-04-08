@@ -6,7 +6,7 @@
     "@fortawesome/free-brands-svg-icons": "5.15.3",
     "@fortawesome/free-regular-svg-icons": "5.15.3",
     "@fortawesome/free-solid-svg-icons": "5.15.3",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "dropzone": "5.9.2",
     "element-ready": "^3.1.0",
     "jszip": "^3.6.0"
