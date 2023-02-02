@@ -9,7 +9,7 @@
     "axios": "0.21.2",
     "dropzone": "5.9.2",
     "element-ready": "^3.1.0",
-    "jszip": "^3.6.0"
+    "jszip": "^3.8.0"
   },
   "devDependencies": {
     "@tsconfig/svelte": "2.0.1",
