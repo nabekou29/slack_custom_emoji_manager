@@ -29,16 +29,20 @@ const downloadAllEmoji = async () => {
     // 削除処理(3回まで失敗を許容する)
     await retry(
       async () => {
-        const res = await axios.get<ArrayBuffer>(url, { responseType: 'arraybuffer' });
+        const res = await axios.get<ArrayBuffer>(url, {
+          responseType: 'arraybuffer',
+        });
         const extension = url.match(/.*\.(\w+)/)?.[1];
         zip.file(`${name}.${extension}`, res.data);
       },
-      { num: 3, sleep: 3000 }
+      { num: 1, sleep: 3000 }
     );
     // 負荷軽減
     await sleep(100);
   });
-  await new Promise((resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: resolve }));
+  await new Promise(
+    (resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: () => resolve(undefined) })
+  );
 
   // エイリアスをJSONファイルとしてzip化
   if (Object.keys(aliases).length) {
@@ -71,7 +75,7 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
       new JabQueue(jobs, {
         concurrency: 1,
         onSuccess: (cnt) => callback(cnt),
-        onComplete: resolve,
+        onComplete: () => resolve(undefined),
       })
   );
 };

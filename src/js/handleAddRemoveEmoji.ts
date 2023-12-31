@@ -18,9 +18,9 @@ const handleCompleteWrapper = (
     if (
       details.tabId !== tabId ||
       // レスポンスボディを見れないので、content_lengthから成功を判断する
-      // 成功時のcontent_lengthは31
+      // 成功時のcontent_lengthは15
       !details.responseHeaders ||
-      getContentLength(details.responseHeaders) !== 31
+      getContentLength(details.responseHeaders) !== 15
     ) {
       return;
     }
