@@ -12,6 +12,6 @@
     "strict": true,
     "types": ["chrome", "svelte"]
   },
-  "include": ["src/**/*", "./svelte.d.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }
