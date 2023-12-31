@@ -11,9 +11,11 @@
 
 <span>
   <input type="checkbox" style="display:none" bind:checked />
-  <span class="toggle" on:click={handleClickToggle} on:click={() => dispatch('toggled')}
-    ><span /></span
-  >
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <span class="toggle" on:click={handleClickToggle} on:click={() => dispatch('toggled')}>
+    <span />
+  </span>
 </span>
 
 <style lang="scss">
@@ -71,7 +73,9 @@
     span {
       background: $color-success;
       transform: translateX(20px);
-      transition: all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25), background 0.15s ease;
+      transition:
+        all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25),
+        background 0.15s ease;
       box-shadow: 0 3px 8px rgba($color-success-dark, 0.33);
       &:before {
         transform: scale(1);

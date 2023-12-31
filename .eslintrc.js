@@ -26,6 +26,7 @@ module.exports = {
     'no-await-in-loop': 'off',
     'no-restricted-syntax': 'off',
     'no-use-before-define': 'off',
+    'no-promise-executor-return': 'off',
     quotes: ['warn', 'single'],
   },
 };

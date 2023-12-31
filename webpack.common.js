@@ -49,7 +49,7 @@ module.exports = {
     content: path.resolve(__dirname, 'src', 'js', 'content.ts'),
     background: path.resolve(__dirname, 'src', 'js', 'background.ts'),
     popup: path.resolve(__dirname, 'src', 'js', 'popup.ts'),
-    main: path.resolve(__dirname, 'src', 'css', 'main.scss')
+    main: path.resolve(__dirname, 'src', 'css', 'main.scss'),
   },
   plugins: [
     new webpack.ProgressPlugin(),
@@ -58,19 +58,19 @@ module.exports = {
     new workboxPlugin.GenerateSW({
       swDest: 'sw.js',
       clientsClaim: true,
-      skipWaiting: false
+      skipWaiting: false,
     }),
-    new CopyPlugin([{ from: './public', to: './' }]),
+    new CopyPlugin({ patterns: [{ from: './public', to: './' }] }),
     new HtmlWebpackPlugin({
       inject: false,
       filename: 'index.html',
-      template: path.resolve(__dirname, 'src', 'html', 'index.html')
+      template: path.resolve(__dirname, 'src', 'html', 'index.html'),
     }),
     new HtmlWebpackPlugin({
       inject: false,
       filename: 'popup.html',
-      template: path.resolve(__dirname, 'src', 'html', 'popup.html')
-    })
+      template: path.resolve(__dirname, 'src', 'html', 'popup.html'),
+    }),
   ],
 
   module: {
@@ -79,48 +79,50 @@ module.exports = {
         test: /.ts$/,
         loader: 'ts-loader',
         include: [path.resolve(__dirname, './src')],
-        exclude: [/node_modules/]
+        exclude: [/node_modules/],
       },
       {
         test: /.scss$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-        include: [path.resolve(__dirname, './src')]
+        include: [path.resolve(__dirname, './src')],
       },
       {
         test: /.html$/,
-        loader: 'html-loader'
+        loader: 'html-loader',
+        options: {
+          // Disables attributes processing
+          sources: false,
+        },
       },
       {
         test: /.(svelte)$/,
         use: {
           loader: 'svelte-loader',
           options: {
-            preprocess: sveltePreprocess()
-          }
-        }
-      }
-    ]
+            preprocess: sveltePreprocess(),
+          },
+        },
+      },
+    ],
   },
 
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js', '.svelte'],
+    conditionNames: ['svelte'],
   },
 
   optimization: {
     minimizer: [new TerserPlugin(), new OptimizeCSSAssetsPlugin()],
-
     splitChunks: {
-      cacheGroups: {
-        vendors: {
-          priority: -10,
-          test: /[\\/]node_modules[\\/]/
-        }
-      },
-
       chunks: 'async',
       minChunks: 1,
       minSize: 30000,
-      name: true
-    }
-  }
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+        },
+      },
+    },
+  },
 };

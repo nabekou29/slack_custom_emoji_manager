@@ -35,14 +35,12 @@ const downloadAllEmoji = async () => {
         const extension = url.match(/.*\.(\w+)/)?.[1];
         zip.file(`${name}.${extension}`, res.data);
       },
-      { num: 1, sleep: 3000 }
+      { num: 3, sleep: 3000 },
     );
     // 負荷軽減
     await sleep(100);
   });
-  await new Promise(
-    (resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: () => resolve(undefined) })
-  );
+  await new Promise<void>((resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: resolve }));
 
   // エイリアスをJSONファイルとしてzip化
   if (Object.keys(aliases).length) {
@@ -70,13 +68,13 @@ const deleteAllEmoji = async (names: string[], callback: (cnt: number) => unknow
   });
   // 削除処理を実行
   // 全ての削除が完了(onComplete)したタイミングでresolveする
-  await new Promise(
+  await new Promise<void>(
     (resolve) =>
       new JabQueue(jobs, {
         concurrency: 1,
         onSuccess: (cnt) => callback(cnt),
-        onComplete: () => resolve(undefined),
-      })
+        onComplete: resolve,
+      }),
   );
 };
 
@@ -178,7 +176,7 @@ const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
           if (!(e instanceof Error)) return;
           imageWrapper.classList.replace('loading', 'warning');
           const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
-            '.warning-mark .cem-tooltip .content'
+            '.warning-mark .cem-tooltip .content',
           )!;
           tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
         });
@@ -200,7 +198,7 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
 
   // 絵文字数
   const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
-    '[data-qa=customize_emoji_count]'
+    '[data-qa=customize_emoji_count]',
   )!;
   const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
   emojiCountOrigin.removeAttribute('class');
@@ -253,7 +251,7 @@ elementReady('.p-customize_emoji_wrapper').then(async () => {
 elementReady('.p-customize_emoji_wrapper__empty_words').then(async () => {
   const emptyMessage = await element.createEmptyMessage();
   const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
-    '.p-customize_emoji_wrapper__empty_words'
+    '.p-customize_emoji_wrapper__empty_words',
   );
   emptyWordsWrapper?.before(emptyMessage);
 });
