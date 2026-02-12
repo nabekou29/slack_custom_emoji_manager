@@ -13,4 +13,4 @@ Slack のカスタム絵文字管理画面に以下の機能を追加します�
 ## ビルド
 
 1. `npm ci`
-1. `npm run build` or `npm run build:prod`
+1. `npm run build`
