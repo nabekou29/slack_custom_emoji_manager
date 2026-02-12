@@ -12,7 +12,7 @@ const getContentLength = (headers: chrome.webRequest.HttpHeader[]) => {
 
 // リクエスト完了処理のラッパー
 const handleCompleteWrapper = (
-  handleComplete: (tabId: number, details: chrome.webRequest.WebResponseCacheDetails) => any
+  handleComplete: (tabId: number, details: chrome.webRequest.WebResponseCacheDetails) => void
 ) => {
   return (tabId: number) => (details: chrome.webRequest.WebResponseCacheDetails) => {
     if (
@@ -39,7 +39,7 @@ const handleCompleteEmojiRemove = handleCompleteWrapper((tabId, _) =>
   chrome.tabs.sendMessage(tabId, 'cem:remove')
 );
 
-(() => {
+export const setupHandleAddRemoveEmoji = () => {
   // イベント登録済みのタブIDの一覧
   const tabIds: number[] = [];
 
@@ -69,4 +69,4 @@ const handleCompleteEmojiRemove = handleCompleteWrapper((tabId, _) =>
       ['responseHeaders']
     );
   });
-})();
+};

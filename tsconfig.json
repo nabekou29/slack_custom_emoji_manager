@@ -1,17 +1,6 @@
 {
-  "extends": "@tsconfig/svelte",
+  "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": false,
-    "lib": ["ES2020", "DOM"],
-    "module": "es6",
-    "target": "es6",
-    "allowJs": true,
-    "strict": true,
-    "types": ["chrome", "svelte"]
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+    "strict": true
+  }
 }

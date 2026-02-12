@@ -1,5 +1,5 @@
-@import '~dropzone/dist/basic.css';
-@import '~dropzone/dist/dropzone.css';
+@use 'dropzone/dist/basic.css';
+@use 'dropzone/dist/dropzone.css';
 
 $space-size: 12px;
 

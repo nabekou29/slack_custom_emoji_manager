@@ -1,4 +1,4 @@
-import type { SlackLocalStorageData } from './types/slackLocalStorage';
+import type { SlackLocalStorageData } from '@/lib/types/slackLocalStorage';
 
 /** 拡張機能のストレージ */
 type CStorage = {
