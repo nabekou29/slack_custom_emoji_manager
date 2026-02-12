@@ -1,36 +1,38 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
 
-  import * as storage from '../storage';
-  import Toggle from './Toggle.svelte';
+  import * as storage from '@/lib/storage';
+  import Toggle from '@/components/Toggle.svelte';
   const msg = chrome.i18n.getMessage;
 
-  export let slackTeamId: string;
+  let { slackTeamId }: { slackTeamId: string } = $props();
 
-  let option: Required<storage.Option> | undefined = undefined;
-  let touchedOption = false;
+  let option: Required<storage.Option> | undefined = $state(undefined);
+  let touchedOption = $state(false);
 
   // オプションの読み込み
-  $: {
+  $effect(() => {
+    const teamId = slackTeamId;
     (async () => {
       const workSpaceOptions = await storage.get('workSpaceOptions');
-
-      option = { ...storage.defaultOption, ...workSpaceOptions?.[slackTeamId] };
+      option = { ...storage.defaultOption, ...workSpaceOptions?.[teamId] };
     })();
-  }
+  });
 
-  // オプションの書き込み
-  $: if (option) {
+  // オプションの書き込み（ユーザー操作後のみ）
+  $effect(() => {
+    if (!option || !touchedOption) return;
+    const currentOption = { ...option };
+    const teamId = slackTeamId;
     (async () => {
       const workSpaceOptions = (await storage.get('workSpaceOptions')) || {};
       storage.set('workSpaceOptions', {
         ...workSpaceOptions,
-        [slackTeamId]: option,
+        [teamId]: currentOption,
       });
     })();
-  }
+  });
 
-  // オプションを変更した際に呼び出す
   const touchOption = () => {
     touchedOption = true;
   };
@@ -40,7 +42,7 @@
   <div class="option__title">{msg('option_title')}</div>
   {#if option}
     <div class="option__field">
-      <Toggle bind:checked={option.showDeleteButton} on:toggled={touchOption} />
+      <Toggle bind:checked={option.showDeleteButton} onToggled={touchOption} />
       <span>{msg('option_show_delete_button')}</span>
     </div>
     {#if touchedOption}
@@ -50,7 +52,7 @@
 </div>
 
 <style lang="scss">
-  @import '../../css/popup-common.scss';
+  @use '@/assets/css/popup-common.scss' as *;
 
   .option {
     &__title {

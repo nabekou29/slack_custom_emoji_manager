@@ -1,23 +1,22 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-
-  export let checked: boolean;
+  let { checked = $bindable(), onToggled }: {
+    checked: boolean;
+    onToggled?: () => void;
+  } = $props();
 
   const handleClickToggle = () => {
     checked = !checked;
+    onToggled?.();
   };
-  const dispatch = createEventDispatcher();
 </script>
 
 <span>
   <input type="checkbox" style="display:none" bind:checked />
-  <span class="toggle" on:click={handleClickToggle} on:click={() => dispatch('toggled')}
-    ><span /></span
-  >
+  <span class="toggle" role="switch" aria-checked={checked} tabindex="0" onclick={handleClickToggle} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClickToggle(); }}><span></span></span>
 </span>
 
 <style lang="scss">
-  @import '../../css/popup-common.scss';
+  @use '@/assets/css/popup-common.scss' as *;
 
   .toggle {
     position: relative;

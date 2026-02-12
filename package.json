@@ -1,73 +1,45 @@
 {
-  "name": "slack_custom_emoji_manager",
-  "version": "1.3.0",
-  "description": "Add the ability to add, delete, and download emojis to Slack.",
-  "dependencies": {
-    "@fortawesome/free-brands-svg-icons": "5.15.3",
-    "@fortawesome/free-regular-svg-icons": "5.15.3",
-    "@fortawesome/free-solid-svg-icons": "5.15.3",
-    "axios": "0.21.2",
-    "dropzone": "5.9.2",
-    "element-ready": "^3.1.0",
-    "jszip": "^3.6.0"
-  },
-  "devDependencies": {
-    "@tsconfig/svelte": "2.0.1",
-    "@types/chrome": "0.0.138",
-    "@types/dropzone": "5.7.3",
-    "@typescript-eslint/eslint-plugin": "4.29.1",
-    "@typescript-eslint/parser": "4.29.1",
-    "acorn": "7.4.1",
-    "babel-plugin-syntax-dynamic-import": "6.18.0",
-    "copy-webpack-plugin": "5.1.2",
-    "css-loader": "3.6.0",
-    "eslint": "7.32.0",
-    "eslint-config-airbnb-base": "14.2.1",
-    "eslint-config-prettier": "6.15.0",
-    "eslint-plugin-import": "2.23.4",
-    "eslint-plugin-prettier": "3.4.0",
-    "html-loader": "0.5.5",
-    "html-webpack-plugin": "3.2.0",
-    "mini-css-extract-plugin": "0.8.2",
-    "optimize-css-assets-webpack-plugin": "5.0.6",
-    "prettier": "2.3.2",
-    "sass": "1.34.1",
-    "sass-loader": "8.0.2",
-    "style-loader": "1.3.0",
-    "svelte": "3.38.2",
-    "svelte-fa": "2.2.0",
-    "svelte-loader": "3.1.1",
-    "svelte-preprocess": "4.7.3",
-    "terser-webpack-plugin": "4.2.3",
-    "ts-loader": "6.2.2",
-    "typescript": "3.9.9",
-    "webpack": "4.46.0",
-    "webpack-bundle-analyzer": "4.4.2",
-    "webpack-cli": "4.7.0",
-    "webpack-dev-server": "3.11.2",
-    "webpack-fix-style-only-entries": "0.4.0",
-    "webpack-merge": "4.2.2",
-    "workbox-webpack-plugin": "4.3.1"
-  },
-  "scripts": {
-    "watch": "rm -rf dist && webpack --config webpack.dev.js --watch",
-    "build": "rm -rf dist && webpack --config webpack.dev.js",
-    "build:prod": "rm -rf dist && webpack --config webpack.prod.js",
-    "analyze": "rm -rf dist && webpack --env analyze --config webpack.prod.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nabekou29/slack_custome_emoji_manager.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nabekou29/slack_custome_emoji_manager/issues"
-  },
-  "homepage": "https://github.com/nabekou29/slack_custome_emoji_manager#readme",
-  "prettier": {
-    "singleQuote": true,
-    "printWidth": 100
-  }
+    "name": "slack_custom_emoji_manager",
+    "version": "1.4.0",
+    "description": "Add the ability to add, delete, and download emojis to Slack.",
+    "keywords": [],
+    "homepage": "https://github.com/nabekou29/slack_custome_emoji_manager#readme",
+    "bugs": {
+        "url": "https://github.com/nabekou29/slack_custome_emoji_manager/issues"
+    },
+    "license": "ISC",
+    "author": "",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nabekou29/slack_custome_emoji_manager.git"
+    },
+    "type": "module",
+    "scripts": {
+        "dev": "wxt",
+        "build": "wxt build",
+        "zip": "wxt zip",
+        "lint": "oxlint -c .oxlintrc.json .",
+        "fmt": "oxfmt --write .",
+        "fmt:check": "oxfmt --check ."
+    },
+    "dependencies": {
+        "@fortawesome/free-brands-svg-icons": "^7.2.0",
+        "@fortawesome/free-regular-svg-icons": "^7.2.0",
+        "@fortawesome/free-solid-svg-icons": "^7.2.0",
+        "dropzone": "^5.9.3",
+        "element-ready": "^9.0.2",
+        "jszip": "^3.10.1",
+        "svelte-fa": "^4.0.3"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.1.36",
+        "@types/dropzone": "^5.7.9",
+        "@wxt-dev/module-svelte": "^2.0.0",
+        "oxfmt": "^0.31.0",
+        "oxlint": "^1.46.0",
+        "sass": "^1.83.0",
+        "svelte": "^5.0.0",
+        "typescript": "^5.7.0",
+        "wxt": "^0.20.15"
+    }
 }

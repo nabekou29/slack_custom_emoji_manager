@@ -55,7 +55,7 @@ export const retry = <T, E>(
     condition?: (e: E) => boolean;
     num: number;
     sleep: number;
-  }
+  },
 ): Promise<T> => {
   return (async () => {
     let res: T;
@@ -65,7 +65,7 @@ export const retry = <T, E>(
         res = await task();
         break;
       } catch (e) {
-        if (i !== num && condition(e)) {
+        if (i !== num && condition(e as E)) {
           await sleep(sleepTime);
           // 再度実行
           // eslint-disable-next-line no-continue

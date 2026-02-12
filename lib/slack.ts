@@ -1,6 +1,4 @@
-/* eslint-disable camelcase */
-import axios from 'axios';
-import type { SlackLocalStorageData } from './types/slackLocalStorage';
+import type { SlackLocalStorageData } from '@/lib/types/slackLocalStorage';
 
 export const BASE_URL = '/api';
 
@@ -85,10 +83,25 @@ export const slackBootData = (() => {
 export const generateXId = (): string =>
   `${slackBootData.versionUid.slice(0, 8)}-${Date.now() / 1000}`;
 
-const post = async <T>({ url, data }: { url: string; data: FormData }) => {
-  return axios.post<T>(url, data, {
-    params: { _x_id: generateXId() },
+/** HTTPエラー */
+export class HttpError extends Error {
+  status: number;
+  constructor(status: number, message?: string) {
+    super(message ?? `HTTP ${status}`);
+    this.status = status;
+  }
+}
+
+const post = async <T>({ url, data }: { url: string; data: FormData }): Promise<T> => {
+  const xId = generateXId();
+  const response = await fetch(`${url}?_x_id=${xId}`, {
+    method: 'POST',
+    body: data,
   });
+  if (!response.ok) {
+    throw new HttpError(response.status);
+  }
+  return response.json() as Promise<T>;
 };
 
 /**
@@ -98,24 +111,26 @@ const post = async <T>({ url, data }: { url: string; data: FormData }) => {
 export const fetchEmojiImageAndAlias = async (): Promise<
   [{ [k: string]: string }, { [k: string]: string }]
 > => {
-  const res = await axios.get<EmojiListResult>(`${BASE_URL}/emoji.list`, {
-    params: { token: slackBootData.apiToken },
-  });
+  const response = await fetch(`${BASE_URL}/emoji.list?token=${slackBootData.apiToken}`);
+  if (!response.ok) {
+    throw new HttpError(response.status);
+  }
+  const data = (await response.json()) as EmojiListResult;
 
   // エイリアスかのチェック
   const isAlias = (url: string) => url.match(/alias:.*/);
 
   // 絵文字
   const emojiMap = Object.fromEntries(
-    Object.entries(res.data.emoji).filter(
-      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name)
-    )
+    Object.entries(data.emoji).filter(
+      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name),
+    ),
   );
   // エイリアス
   const aliasMap = Object.fromEntries(
-    Object.entries(res.data.emoji)
+    Object.entries(data.emoji)
       .filter(([name, url]) => isAlias(url) && !defaultAliases.includes(name))
-      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? ''])
+      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? '']),
   );
 
   return [emojiMap, aliasMap];

@@ -1,22 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Fa from 'svelte-fa/src/fa.svelte';
+  import Fa from 'svelte-fa';
   import { faSlack } from '@fortawesome/free-brands-svg-icons';
   import { faExternalLinkAlt, faAngleDown } from '@fortawesome/free-solid-svg-icons';
   import { faSmileWink } from '@fortawesome/free-regular-svg-icons';
 
-  import * as storage from '../storage';
-  import Option from './Option.svelte';
+  import * as storage from '@/lib/storage';
+  import Option from '@/components/Option.svelte';
   import type {
     SlackLocalStorageData,
     SlackLocalStorageDataTeam,
-  } from '../types/slackLocalStorage';
+  } from '@/lib/types/slackLocalStorage';
 
   const msg = chrome.i18n.getMessage;
 
-  let slackData: SlackLocalStorageData | undefined;
-  let currentSlackTeamId: string;
-  let currentSlackTeam: SlackLocalStorageDataTeam | undefined;
+  let slackData: SlackLocalStorageData | undefined = $state(undefined);
+  let currentSlackTeamId: string = $state('');
+  let currentSlackTeam: SlackLocalStorageDataTeam | undefined = $state(undefined);
 
   onMount(async () => {
     slackData = await storage.get('slack');
@@ -26,7 +26,7 @@
   });
 
   const handleChangeCurrentTeamId = async (teamId: string) => {
-    // 選択中のチームの情報を更新
+    currentSlackTeamId = teamId;
     currentSlackTeam = slackData?.teams[teamId];
   };
 </script>
@@ -45,8 +45,7 @@
         <select
           class="workspace-select__select"
           bind:value={currentSlackTeamId}
-          on:change={() => handleChangeCurrentTeamId(currentSlackTeamId)}
-          on:blur={() => {}}
+          onchange={() => handleChangeCurrentTeamId(currentSlackTeamId)}
         >
           {#each slackData.orderedTeamIds as id}
             {#if slackData.teams[id]}
@@ -94,7 +93,7 @@
 </div>
 
 <style lang="scss">
-  @import '../../css/popup-common.scss';
+  @use '@/assets/css/popup-common.scss' as *;
 
   :global(body) {
     min-width: 280px;
