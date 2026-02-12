@@ -21,6 +21,7 @@
     "svelte-fa": "^4.0.3"
   },
   "devDependencies": {
+    "@types/dropzone": "^5.7.9",
     "@wxt-dev/module-svelte": "^2.0.0",
     "oxfmt": "^0.7.0",
     "oxlint": "^0.16.0",
