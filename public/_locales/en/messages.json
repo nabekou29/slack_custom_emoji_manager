@@ -19,7 +19,7 @@
   "bulk_remove_cancel_btn": { "message": "Cancel" },
 
   "dropzone_dict": {
-    "message": "Drag and drop some emojis you want to add here.<br><small>\"emoji.png\" will be added as \"emoji\". </small>"
+    "message": "Drag and drop some emojis you want to add here.<br><small>\"emoji.png\" will be added as \"emoji\". You can also drop \"_alias.json\" to register aliases.</small>"
   },
 
   "popup_header_title": { "message": "Slack Custom Emoji Manager" },

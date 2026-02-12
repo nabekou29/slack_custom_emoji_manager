@@ -19,7 +19,7 @@
   "bulk_remove_cancel_btn": { "message": "キャンセル" },
 
   "dropzone_dict": {
-    "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます</small>"
+    "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます。\"_alias.json\"でエイリアスも登録できます</small>"
   },
 
   "popup_header_title": { "message": "Slack Custom Emoji Manager" },

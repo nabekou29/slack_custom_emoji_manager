@@ -9,6 +9,7 @@ import {
   fetchEmojiImageAndAlias,
   getLocalStorageData,
   slackBootData,
+  uploadAlias,
   uploadEmoji,
   workSpaceName,
 } from '@/lib/slack';
@@ -131,6 +132,40 @@ export default defineContentScript({
     /**
      * ドロップゾーンの初期化
      */
+    /**
+     * JSONファイルの内容をエイリアスマップとしてバリデーション
+     */
+    const parseAliasJson = (text: string): Record<string, string> => {
+      const data = JSON.parse(text);
+      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+        throw new Error('Invalid format: expected an object');
+      }
+      const entries = Object.entries(data);
+      if (entries.length === 0) {
+        throw new Error('Empty alias file');
+      }
+      for (const [key, value] of entries) {
+        if (typeof key !== 'string' || typeof value !== 'string') {
+          throw new Error(`Invalid entry: "${key}" → "${value}" (both must be strings)`);
+        }
+      }
+      return data as Record<string, string>;
+    };
+
+    /**
+     * ファイルの中身をテキストとして読み込む
+     */
+    const readFileAsText = (file: File): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(file);
+      });
+
+    /**
+     * ドロップゾーンの初期化
+     */
     const initDropzone = async (): Promise<[Dropzone, HTMLDivElement]> => {
       Dropzone.autoDiscover = false;
       const dropzoneElm = await element.createDropzone();
@@ -138,39 +173,111 @@ export default defineContentScript({
         url: 'mock',
         autoProcessQueue: false,
         previewTemplate: (await element.createDropzonePreviewTemplate()).outerHTML,
-        acceptedFiles: 'image/*',
+        acceptedFiles: 'image/*,.json',
         dictDefaultMessage: chrome.i18n.getMessage('dropzone_dict'),
       });
 
       const queue = new JabQueue<void, HttpError>([], { concurrency: 1 });
+      // エイリアスのジョブを一時的に保持し、画像ジョブの後にキューへ追加する
+      let pendingAliasJobs: (() => void)[] = [];
+      let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const flushAliasJobs = () => {
+        for (const flush of pendingAliasJobs) {
+          flush();
+        }
+        pendingAliasJobs = [];
+        flushTimer = null;
+      };
+
+      const scheduleAliasFlush = () => {
+        if (flushTimer !== null) clearTimeout(flushTimer);
+        // setTimeout(0) で画像ファイルの addedfile が全て処理された後にエイリアスジョブを追加
+        flushTimer = setTimeout(flushAliasJobs, 0);
+      };
 
       dropzone.on('addedfile', async (file) => {
-        const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
         const imageWrapper = file.previewElement.querySelector('.cem-dz-image')!;
         const condition = (e: HttpError) => e.status === 429;
+        const isJson = file.name.endsWith('.json');
 
-        queue.add(async () => {
-          await retry(() => uploadEmoji(name, file.name, file), {
-            condition,
-            num: 3,
-            sleep: 3000,
-          })
-            .then((res) => {
-              if (res.error) {
-                throw new Error(res.error);
+        if (isJson) {
+          file.previewElement.classList.add('dz-file-preview');
+          imageWrapper.classList.add('json-file');
+
+          try {
+            const text = await readFileAsText(file as unknown as File);
+            const aliases = parseAliasJson(text);
+            const entries = Object.entries(aliases);
+
+            // エイリアスのジョブを保持し、画像ジョブの後にキューへ追加
+            pendingAliasJobs.push(() => {
+              for (const [alias, target] of entries) {
+                queue.add(async () => {
+                  await retry(() => uploadAlias(target, alias), {
+                    condition,
+                    num: 3,
+                    sleep: 3000,
+                  })
+                    .then((res) => {
+                      if (res.error) {
+                        throw new Error(res.error);
+                      }
+                    })
+                    .catch((e) => {
+                      if (!(e instanceof Error)) return;
+                      imageWrapper.classList.replace('loading', 'warning');
+                      const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
+                        '.warning-mark .cem-tooltip .content'
+                      )!;
+                      tooltipContent.innerHTML = `${file.name}<br>:${alias}: → :${target}:<br>[Error] ${e.message}`;
+                    });
+                  await sleep(100);
+                });
               }
-              imageWrapper.classList.remove('loading');
-            })
-            .catch((e) => {
-              if (!(e instanceof Error)) return;
-              imageWrapper.classList.replace('loading', 'warning');
-              const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
-                '.warning-mark .cem-tooltip .content'
-              )!;
-              tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
+
+              // 全エイリアスのジョブ完了を待つためのセンチネルジョブ
+              queue.add(async () => {
+                if (imageWrapper.classList.contains('loading')) {
+                  imageWrapper.classList.remove('loading');
+                }
+              });
             });
-          await sleep(100);
-        });
+
+            scheduleAliasFlush();
+          } catch (e) {
+            imageWrapper.classList.replace('loading', 'warning');
+            const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
+              '.warning-mark .cem-tooltip .content'
+            )!;
+            tooltipContent.innerHTML = `${file.name}<br>[Error] ${e instanceof Error ? e.message : e}`;
+          }
+        } else {
+          const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
+
+          queue.add(async () => {
+            await retry(() => uploadEmoji(name, file.name, file), {
+              condition,
+              num: 3,
+              sleep: 3000,
+            })
+              .then((res) => {
+                if (res.error) {
+                  throw new Error(res.error);
+                }
+                imageWrapper.classList.remove('loading');
+              })
+              .catch((e) => {
+                if (!(e instanceof Error)) return;
+                imageWrapper.classList.replace('loading', 'warning');
+                const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
+                  '.warning-mark .cem-tooltip .content'
+                )!;
+                tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
+              });
+            await sleep(100);
+          });
+        }
       });
 
       return [dropzone, dropzoneElm];
