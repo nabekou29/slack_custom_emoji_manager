@@ -12,9 +12,9 @@ const getContentLength = (headers: chrome.webRequest.HttpHeader[]) => {
 
 // リクエスト完了処理のラッパー
 const handleCompleteWrapper = (
-  handleComplete: (tabId: number, details: chrome.webRequest.WebResponseCacheDetails) => void
+  handleComplete: (tabId: number, details: chrome.webRequest.OnCompletedDetails) => void
 ) => {
-  return (tabId: number) => (details: chrome.webRequest.WebResponseCacheDetails) => {
+  return (tabId: number) => (details: chrome.webRequest.OnCompletedDetails) => {
     if (
       details.tabId !== tabId ||
       // レスポンスボディを見れないので、content_lengthから成功を判断する
