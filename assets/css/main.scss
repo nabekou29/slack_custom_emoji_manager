@@ -4,12 +4,15 @@
 $space-size: 12px;
 
 .button-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: $space-size;
 }
 
 button.delete-all,
 button.download-all {
-  margin-left: $space-size;
+  margin-left: 0;
 }
 
 .cem-empty-message {

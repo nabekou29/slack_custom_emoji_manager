@@ -177,34 +177,42 @@ export default defineContentScript({
     };
 
     /* 要素の追加イベントの登録を行う */
-    elementReady('.p-customize_emoji_wrapper').then(async () => {
+    const ALIAS_BUTTON_SELECTOR = 'button[data-qa=customize_emoji_add_alias]';
+
+    elementReady(ALIAS_BUTTON_SELECTOR, { stopOnDomReady: false }).then(async () => {
+      // Phase 1: 非同期処理を先に完了させる（DOM非依存）
       const option =
         (await storage.get('workSpaceOptions'))?.[slackBootData.teamId] || storage.defaultOption;
+      const [_, dropzoneElm] = await initDropzone();
+      const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
+      const deleteAllEmojiButton = option.showDeleteButton
+        ? await element.createDeleteAllEmojiButton()
+        : null;
+
+      // Phase 2: freshなDOM参照を取得して同期的に注入
+      const addAliasButton = document.querySelector<HTMLButtonElement>(ALIAS_BUTTON_SELECTOR);
+      if (!addAliasButton) return;
 
       document.querySelector('.cem-empty-message')?.remove();
 
       const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
         '[data-qa=customize_emoji_count]'
-      )!;
-      const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
-      emojiCountOrigin.removeAttribute('class');
-      emojiCountOrigin.style.display = 'none';
-      emojiCountOrigin.parentElement!.insertBefore(emojiCount, emojiCountOrigin);
+      );
+      if (emojiCountOrigin?.parentElement) {
+        const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
+        emojiCountOrigin.removeAttribute('class');
+        emojiCountOrigin.style.display = 'none';
+        emojiCountOrigin.parentElement.insertBefore(emojiCount, emojiCountOrigin);
+        emojiCount.classList.add('cem-emoji-count');
+      }
 
-      emojiCount.classList.add('cem-emoji-count');
-
-      const addAliasButton = document.querySelector(
-        'button[data-qa=customize_emoji_add_alias]'
-      )!;
-      const buttonsWrapper = addAliasButton.parentElement!;
+      const buttonsWrapper = addAliasButton.parentElement;
+      if (!buttonsWrapper) return;
 
       buttonsWrapper.removeAttribute('class');
       buttonsWrapper.classList.add('button-list');
+      buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
 
-      const [_, dropzoneElm] = await initDropzone();
-      buttonsWrapper.parentNode!.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
-
-      const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
       buttonsWrapper.appendChild(downloadAllEmojiButton);
       downloadAllEmojiButton.addEventListener('click', async () => {
         const spinner = downloadAllEmojiButton.querySelector('.c-infinite_spinner');
@@ -220,21 +228,21 @@ export default defineContentScript({
         }
       });
 
-      if (option.showDeleteButton) {
-        const deleteAllEmojiButton = await element.createDeleteAllEmojiButton();
+      if (deleteAllEmojiButton) {
         buttonsWrapper.appendChild(deleteAllEmojiButton);
         deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
       }
-    });
+
+    }).catch(console.error);
 
     // 絵文字が登録されていない場合の、要素の追加イベントの登録を行う
-    elementReady('.p-customize_emoji_wrapper__empty_words').then(async () => {
+    elementReady('.p-customize_emoji_wrapper__empty_words', { stopOnDomReady: false }).then(async () => {
       const emptyMessage = await element.createEmptyMessage();
       const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
         '.p-customize_emoji_wrapper__empty_words'
       );
       emptyWordsWrapper?.before(emptyMessage);
-    });
+    }).catch(console.error);
 
     /* 絵文字の総数を増減する */
     const changeEmojiNumber = (diff: number) => () => {

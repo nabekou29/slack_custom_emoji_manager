@@ -12,6 +12,9 @@ const fetchHtml = async <T extends HTMLElement>(resource: string, selector?: str
     cache[resource] ??
     (await (async () => {
       const res = await fetch(chrome.runtime.getURL(resource), { method: 'GET' });
+      if (!res.ok) {
+        throw new Error(`fetchHtml: HTTP ${res.status} for ${resource}`);
+      }
       const html = await res.text();
       const parsedHtml = html.replace(/\$\{([a-zA-Z_]+)\}/g, (_, msg) =>
         chrome.i18n.getMessage(msg)
