@@ -20,6 +20,15 @@ import JSZip from 'jszip';
 import JabQueue from '@/lib/jobQueue';
 import elementReady from 'element-ready';
 
+/** ツールチップにテキスト行を安全に設定する（innerHTMLを使わずXSSを防止） */
+const setTooltipLines = (el: HTMLElement, lines: string[]) => {
+  el.textContent = '';
+  for (let i = 0; i < lines.length; i++) {
+    if (i > 0) el.appendChild(document.createElement('br'));
+    el.appendChild(document.createTextNode(lines[i]));
+  }
+};
+
 export default defineContentScript({
   matches: ['*://*.slack.com/*'],
 
@@ -229,7 +238,11 @@ export default defineContentScript({
                       const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
                         '.warning-mark .cem-tooltip .content',
                       )!;
-                      tooltipContent.innerHTML = `${file.name}<br>:${alias}: → :${target}:<br>[Error] ${e.message}`;
+                      setTooltipLines(tooltipContent, [
+                        file.name,
+                        `:${alias}: → :${target}:`,
+                        `[Error] ${e.message}`,
+                      ]);
                     });
                   await sleep(100);
                 });
@@ -249,7 +262,10 @@ export default defineContentScript({
             const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
               '.warning-mark .cem-tooltip .content',
             )!;
-            tooltipContent.innerHTML = `${file.name}<br>[Error] ${e instanceof Error ? e.message : e}`;
+            setTooltipLines(tooltipContent, [
+              file.name,
+              `[Error] ${e instanceof Error ? e.message : e}`,
+            ]);
           }
         } else {
           const name = file.name.match(/(.*)\.\w+/)?.[1] ?? '';
@@ -272,7 +288,7 @@ export default defineContentScript({
                 const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
                   '.warning-mark .cem-tooltip .content',
                 )!;
-                tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
+                setTooltipLines(tooltipContent, [file.name, `[Error] ${e.message}`]);
               });
             await sleep(100);
           });
