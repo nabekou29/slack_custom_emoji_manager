@@ -55,7 +55,7 @@ export const retry = <T, E>(
     condition?: (e: E) => boolean;
     num: number;
     sleep: number;
-  }
+  },
 ): Promise<T> => {
   return (async () => {
     let res: T;

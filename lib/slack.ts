@@ -123,14 +123,14 @@ export const fetchEmojiImageAndAlias = async (): Promise<
   // 絵文字
   const emojiMap = Object.fromEntries(
     Object.entries(data.emoji).filter(
-      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name)
-    )
+      ([name, url]) => !isAlias(url) && !defaultEmojis.includes(name),
+    ),
   );
   // エイリアス
   const aliasMap = Object.fromEntries(
     Object.entries(data.emoji)
       .filter(([name, url]) => isAlias(url) && !defaultAliases.includes(name))
-      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? ''])
+      .map(([name, alias]) => [name, alias.match(/alias:(.*)/)?.[1] ?? '']),
   );
 
   return [emojiMap, aliasMap];

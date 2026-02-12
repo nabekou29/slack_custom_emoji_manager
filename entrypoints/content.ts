@@ -41,14 +41,13 @@ export default defineContentScript({
             const extension = url.match(/.*\.(\w+)/)?.[1];
             zip.file(`${name}.${extension}`, buffer);
           },
-          { num: 1, sleep: 3000 }
+          { num: 1, sleep: 3000 },
         );
         // 負荷軽減
         await sleep(100);
       });
       await new Promise(
-        (resolve) =>
-          new JabQueue(jobs, { concurrency: 5, onComplete: () => resolve(undefined) })
+        (resolve) => new JabQueue(jobs, { concurrency: 5, onComplete: () => resolve(undefined) }),
       );
 
       // エイリアスをJSONファイルとしてzip化
@@ -77,7 +76,7 @@ export default defineContentScript({
             concurrency: 1,
             onSuccess: (cnt) => callback(cnt),
             onComplete: () => resolve(undefined),
-          })
+          }),
       );
     };
 
@@ -228,7 +227,7 @@ export default defineContentScript({
                       if (!(e instanceof Error)) return;
                       imageWrapper.classList.replace('loading', 'warning');
                       const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
-                        '.warning-mark .cem-tooltip .content'
+                        '.warning-mark .cem-tooltip .content',
                       )!;
                       tooltipContent.innerHTML = `${file.name}<br>:${alias}: → :${target}:<br>[Error] ${e.message}`;
                     });
@@ -248,7 +247,7 @@ export default defineContentScript({
           } catch (e) {
             imageWrapper.classList.replace('loading', 'warning');
             const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
-              '.warning-mark .cem-tooltip .content'
+              '.warning-mark .cem-tooltip .content',
             )!;
             tooltipContent.innerHTML = `${file.name}<br>[Error] ${e instanceof Error ? e.message : e}`;
           }
@@ -271,7 +270,7 @@ export default defineContentScript({
                 if (!(e instanceof Error)) return;
                 imageWrapper.classList.replace('loading', 'warning');
                 const tooltipContent = imageWrapper.querySelector<HTMLSpanElement>(
-                  '.warning-mark .cem-tooltip .content'
+                  '.warning-mark .cem-tooltip .content',
                 )!;
                 tooltipContent.innerHTML = `${file.name}<br>[Error] ${e.message}`;
               });
@@ -286,70 +285,73 @@ export default defineContentScript({
     /* 要素の追加イベントの登録を行う */
     const ALIAS_BUTTON_SELECTOR = 'button[data-qa=customize_emoji_add_alias]';
 
-    elementReady(ALIAS_BUTTON_SELECTOR, { stopOnDomReady: false }).then(async () => {
-      // Phase 1: 非同期処理を先に完了させる（DOM非依存）
-      const option =
-        (await storage.get('workSpaceOptions'))?.[slackBootData.teamId] || storage.defaultOption;
-      const [_, dropzoneElm] = await initDropzone();
-      const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
-      const deleteAllEmojiButton = option.showDeleteButton
-        ? await element.createDeleteAllEmojiButton()
-        : null;
+    elementReady(ALIAS_BUTTON_SELECTOR, { stopOnDomReady: false })
+      .then(async () => {
+        // Phase 1: 非同期処理を先に完了させる（DOM非依存）
+        const option =
+          (await storage.get('workSpaceOptions'))?.[slackBootData.teamId] || storage.defaultOption;
+        const [_, dropzoneElm] = await initDropzone();
+        const downloadAllEmojiButton = await element.createDownloadAllEmojiButton();
+        const deleteAllEmojiButton = option.showDeleteButton
+          ? await element.createDeleteAllEmojiButton()
+          : null;
 
-      // Phase 2: freshなDOM参照を取得して同期的に注入
-      const addAliasButton = document.querySelector<HTMLButtonElement>(ALIAS_BUTTON_SELECTOR);
-      if (!addAliasButton) return;
+        // Phase 2: freshなDOM参照を取得して同期的に注入
+        const addAliasButton = document.querySelector<HTMLButtonElement>(ALIAS_BUTTON_SELECTOR);
+        if (!addAliasButton) return;
 
-      document.querySelector('.cem-empty-message')?.remove();
+        document.querySelector('.cem-empty-message')?.remove();
 
-      const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
-        '[data-qa=customize_emoji_count]'
-      );
-      if (emojiCountOrigin?.parentElement) {
-        const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
-        emojiCountOrigin.removeAttribute('class');
-        emojiCountOrigin.style.display = 'none';
-        emojiCountOrigin.parentElement.insertBefore(emojiCount, emojiCountOrigin);
-        emojiCount.classList.add('cem-emoji-count');
-      }
-
-      const buttonsWrapper = addAliasButton.parentElement;
-      if (!buttonsWrapper) return;
-
-      buttonsWrapper.removeAttribute('class');
-      buttonsWrapper.classList.add('button-list');
-      buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
-
-      buttonsWrapper.appendChild(downloadAllEmojiButton);
-      downloadAllEmojiButton.addEventListener('click', async () => {
-        const spinner = downloadAllEmojiButton.querySelector('.c-infinite_spinner');
-        downloadAllEmojiButton.disabled = true;
-        spinner?.classList.remove('c-button--loading_spinner--hidden');
-        try {
-          await downloadAllEmoji();
-        } catch (e) {
-          alert(e);
-        } finally {
-          downloadAllEmojiButton.disabled = false;
-          spinner?.classList.add('c-button--loading_spinner--hidden');
+        const emojiCountOrigin = document.querySelector<HTMLHeadingElement>(
+          '[data-qa=customize_emoji_count]',
+        );
+        if (emojiCountOrigin?.parentElement) {
+          const emojiCount = emojiCountOrigin.cloneNode(true) as HTMLHeadingElement;
+          emojiCountOrigin.removeAttribute('class');
+          emojiCountOrigin.style.display = 'none';
+          emojiCountOrigin.parentElement.insertBefore(emojiCount, emojiCountOrigin);
+          emojiCount.classList.add('cem-emoji-count');
         }
-      });
 
-      if (deleteAllEmojiButton) {
-        buttonsWrapper.appendChild(deleteAllEmojiButton);
-        deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
-      }
+        const buttonsWrapper = addAliasButton.parentElement;
+        if (!buttonsWrapper) return;
 
-    }).catch(console.error);
+        buttonsWrapper.removeAttribute('class');
+        buttonsWrapper.classList.add('button-list');
+        buttonsWrapper.parentNode?.insertBefore(dropzoneElm, buttonsWrapper.nextSibling);
+
+        buttonsWrapper.appendChild(downloadAllEmojiButton);
+        downloadAllEmojiButton.addEventListener('click', async () => {
+          const spinner = downloadAllEmojiButton.querySelector('.c-infinite_spinner');
+          downloadAllEmojiButton.disabled = true;
+          spinner?.classList.remove('c-button--loading_spinner--hidden');
+          try {
+            await downloadAllEmoji();
+          } catch (e) {
+            alert(e);
+          } finally {
+            downloadAllEmojiButton.disabled = false;
+            spinner?.classList.add('c-button--loading_spinner--hidden');
+          }
+        });
+
+        if (deleteAllEmojiButton) {
+          buttonsWrapper.appendChild(deleteAllEmojiButton);
+          deleteAllEmojiButton.addEventListener('click', handleClickDeleteAllEmojiButton);
+        }
+      })
+      .catch(console.error);
 
     // 絵文字が登録されていない場合の、要素の追加イベントの登録を行う
-    elementReady('.p-customize_emoji_wrapper__empty_words', { stopOnDomReady: false }).then(async () => {
-      const emptyMessage = await element.createEmptyMessage();
-      const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
-        '.p-customize_emoji_wrapper__empty_words'
-      );
-      emptyWordsWrapper?.before(emptyMessage);
-    }).catch(console.error);
+    elementReady('.p-customize_emoji_wrapper__empty_words', { stopOnDomReady: false })
+      .then(async () => {
+        const emptyMessage = await element.createEmptyMessage();
+        const emptyWordsWrapper = document.querySelector<HTMLHeadingElement>(
+          '.p-customize_emoji_wrapper__empty_words',
+        );
+        emptyWordsWrapper?.before(emptyMessage);
+      })
+      .catch(console.error);
 
     /* 絵文字の総数を増減する */
     const changeEmojiNumber = (diff: number) => () => {
@@ -372,9 +374,7 @@ export default defineContentScript({
       'cem:add': changeEmojiNumber(1),
       'cem:remove': changeEmojiNumber(-1),
     };
-    chrome.runtime.onMessage.addListener(
-      (message: string) => callbacks[message]?.()
-    );
+    chrome.runtime.onMessage.addListener((message: string) => callbacks[message]?.());
 
     /* ローカルストレージの情報を拡張のストレージに保存 */
     const data = getLocalStorageData();

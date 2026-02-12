@@ -34,11 +34,11 @@ npm run fmt:check       # フォーマットチェック
 
 ### エントリポイント（WXT）
 
-| エントリ | 出力 | 役割 |
-|---|---|---|
-| `entrypoints/content.ts` | content-scripts/content.js | Slackページに注入。メインUI・絵文字操作ロジック |
-| `entrypoints/background.ts` | background.js | Service Worker。Slack APIリクエスト監視・絵文字数リアルタイム更新 |
-| `entrypoints/popup/` | popup.html + popup.js | 拡張ポップアップ。Svelteアプリ（ワークスペース選択・設定） |
+| エントリ                    | 出力                       | 役割                                                              |
+| --------------------------- | -------------------------- | ----------------------------------------------------------------- |
+| `entrypoints/content.ts`    | content-scripts/content.js | Slackページに注入。メインUI・絵文字操作ロジック                   |
+| `entrypoints/background.ts` | background.js              | Service Worker。Slack APIリクエスト監視・絵文字数リアルタイム更新 |
+| `entrypoints/popup/`        | popup.html + popup.js      | 拡張ポップアップ。Svelteアプリ（ワークスペース選択・設定）        |
 
 ### 主要モジュール
 

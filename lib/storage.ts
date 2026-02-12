@@ -41,7 +41,7 @@ export const get = <K extends keyof CStorage>(key: K): Promise<CStorage[K] | und
  */
 export const set = <K extends keyof CStorage>(
   key: K,
-  value: CStorage[K] | undefined
+  value: CStorage[K] | undefined,
 ): Promise<void> => {
   return new Promise((resolve) => {
     chrome.storage.local.set({ [key]: value }, resolve);

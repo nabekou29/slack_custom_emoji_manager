@@ -1,45 +1,45 @@
 {
-  "name": "slack_custom_emoji_manager",
-  "version": "1.3.0",
-  "description": "Add the ability to add, delete, and download emojis to Slack.",
-  "type": "module",
-  "scripts": {
-    "dev": "wxt",
-    "build": "wxt build",
-    "zip": "wxt zip",
-    "lint": "oxlint -c .oxlintrc.json .",
-    "fmt": "oxfmt --write .",
-    "fmt:check": "oxfmt --check ."
-  },
-  "dependencies": {
-    "@fortawesome/free-brands-svg-icons": "^7.2.0",
-    "@fortawesome/free-regular-svg-icons": "^7.2.0",
-    "@fortawesome/free-solid-svg-icons": "^7.2.0",
-    "dropzone": "^5.9.3",
-    "element-ready": "^9.0.2",
-    "jszip": "^3.10.1",
-    "svelte-fa": "^4.0.3"
-  },
-  "devDependencies": {
-    "@types/chrome": "^0.1.36",
-    "@types/dropzone": "^5.7.9",
-    "@wxt-dev/module-svelte": "^2.0.0",
-    "oxfmt": "^0.31.0",
-    "oxlint": "^1.46.0",
-    "sass": "^1.83.0",
-    "svelte": "^5.0.0",
-    "typescript": "^5.7.0",
-    "wxt": "^0.20.15"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nabekou29/slack_custome_emoji_manager.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nabekou29/slack_custome_emoji_manager/issues"
-  },
-  "homepage": "https://github.com/nabekou29/slack_custome_emoji_manager#readme"
+    "name": "slack_custom_emoji_manager",
+    "version": "1.3.0",
+    "description": "Add the ability to add, delete, and download emojis to Slack.",
+    "keywords": [],
+    "homepage": "https://github.com/nabekou29/slack_custome_emoji_manager#readme",
+    "bugs": {
+        "url": "https://github.com/nabekou29/slack_custome_emoji_manager/issues"
+    },
+    "license": "ISC",
+    "author": "",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nabekou29/slack_custome_emoji_manager.git"
+    },
+    "type": "module",
+    "scripts": {
+        "dev": "wxt",
+        "build": "wxt build",
+        "zip": "wxt zip",
+        "lint": "oxlint -c .oxlintrc.json .",
+        "fmt": "oxfmt --write .",
+        "fmt:check": "oxfmt --check ."
+    },
+    "dependencies": {
+        "@fortawesome/free-brands-svg-icons": "^7.2.0",
+        "@fortawesome/free-regular-svg-icons": "^7.2.0",
+        "@fortawesome/free-solid-svg-icons": "^7.2.0",
+        "dropzone": "^5.9.3",
+        "element-ready": "^9.0.2",
+        "jszip": "^3.10.1",
+        "svelte-fa": "^4.0.3"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.1.36",
+        "@types/dropzone": "^5.7.9",
+        "@wxt-dev/module-svelte": "^2.0.0",
+        "oxfmt": "^0.31.0",
+        "oxlint": "^1.46.0",
+        "sass": "^1.83.0",
+        "svelte": "^5.0.0",
+        "typescript": "^5.7.0",
+        "wxt": "^0.20.15"
+    }
 }

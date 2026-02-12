@@ -1,38 +1,38 @@
 {
-  "ext_name": { "message": "Slack Custom Emoji Manager" },
-  "ext_short_name": { "message": "Slack Custom Emoji Manager" },
-  "ext_desc": { "message": "Slackに絵文字の追加、削除、ダウンロードをする機能を追加します" },
+    "ext_name": { "message": "Slack Custom Emoji Manager" },
+    "ext_short_name": { "message": "Slack Custom Emoji Manager" },
+    "ext_desc": { "message": "Slackに絵文字の追加、削除、ダウンロードをする機能を追加します" },
 
-  "empty_message": {
-    "message": "『Slack Custom Emoji Manager』を使用するためには1つ目の絵文字を追加してください"
-  },
-  "bulk_download": { "message": "すべての絵文字をダウンロード" },
-  "bulk_remove": { "message": "すべての絵文字を削除" },
-  "bulk_remove_confirm": { "message": "すべての絵文字を削除しますか？" },
-  "bulk_remove_confirm_desc": {
-    "message": "この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。"
-  },
-  "bulk_remove_confirm_sub_desc": {
-    "message": "※削除前に全ての絵文字をダウンロードすることを推奨します。<br>※この処理は時間がかかる場合があります。"
-  },
-  "bulk_remove_confirm_btn": { "message": "削除する" },
-  "bulk_remove_cancel_btn": { "message": "キャンセル" },
+    "empty_message": {
+        "message": "『Slack Custom Emoji Manager』を使用するためには1つ目の絵文字を追加してください"
+    },
+    "bulk_download": { "message": "すべての絵文字をダウンロード" },
+    "bulk_remove": { "message": "すべての絵文字を削除" },
+    "bulk_remove_confirm": { "message": "すべての絵文字を削除しますか？" },
+    "bulk_remove_confirm_desc": {
+        "message": "この操作により、ワークスペースの全メンバーに対して、<b>すべてのカスタム絵文字が削除</b>されます。"
+    },
+    "bulk_remove_confirm_sub_desc": {
+        "message": "※削除前に全ての絵文字をダウンロードすることを推奨します。<br>※この処理は時間がかかる場合があります。"
+    },
+    "bulk_remove_confirm_btn": { "message": "削除する" },
+    "bulk_remove_cancel_btn": { "message": "キャンセル" },
 
-  "dropzone_dict": {
-    "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます。\"_alias.json\"でエイリアスも登録できます</small>"
-  },
+    "dropzone_dict": {
+        "message": "ここに追加したい絵文字をドラッグ＆ドロップ<br><small>\"emoji.png\"は\"emoji\"として登録されます。\"_alias.json\"でエイリアスも登録できます</small>"
+    },
 
-  "popup_header_title": { "message": "Slack Custom Emoji Manager" },
-  "open_chat": { "message": "チャットを開く" },
-  "customize_emoji": { "message": "emoji をカスタマイズ" },
-  "never_opened_slack__open_slack": {
-    "message": "まずは<a href=\"https://slack.com/signin#/signin\" target=\"_blank\">ここ</a>からSlackワークスペースを開きましょう！"
-  },
-  "never_opened_slack__reload": {
-    "message": "もしすでに開いているなら、ページをリロードしてください。"
-  },
+    "popup_header_title": { "message": "Slack Custom Emoji Manager" },
+    "open_chat": { "message": "チャットを開く" },
+    "customize_emoji": { "message": "emoji をカスタマイズ" },
+    "never_opened_slack__open_slack": {
+        "message": "まずは<a href=\"https://slack.com/signin#/signin\" target=\"_blank\">ここ</a>からSlackワークスペースを開きましょう！"
+    },
+    "never_opened_slack__reload": {
+        "message": "もしすでに開いているなら、ページをリロードしてください。"
+    },
 
-  "option_title": { "message": "設定" },
-  "option_show_delete_button": { "message": "削除ボタンを表示" },
-  "option_reload_to_reflect_option": { "message": "設定を反映するには更新してください。" }
+    "option_title": { "message": "設定" },
+    "option_show_delete_button": { "message": "削除ボタンを表示" },
+    "option_reload_to_reflect_option": { "message": "設定を反映するには更新してください。" }
 }
